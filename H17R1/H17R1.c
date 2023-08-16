@@ -16,6 +16,8 @@
 /* Includes ------------------------------------------------------------------*/
 #include "BOS.h"
 #include "H17R1_inputs.h"
+
+
 /* Define UART variables */
 UART_HandleTypeDef huart1;
 UART_HandleTypeDef huart2;
@@ -27,13 +29,174 @@ UART_HandleTypeDef huart6;
 /* Exported variables */
 extern FLASH_ProcessTypeDef pFlash;
 extern uint8_t numOfRecordedSnippets;
-
+void MX_GPIO_Init(void);
+extern void MX_SPI1_Init(void);
+extern void MX_TIM4_Init(void);
 /* Module exported parameters ------------------------------------------------*/
 module_param_t modParam[NUM_MODULE_PARAMS] ={{.paramPtr = NULL, .paramFormat =FMT_FLOAT, .paramName =""}};
 
 /* Private variables ---------------------------------------------------------*/
+extern void MyBusyInterruptHandler(void);
+extern void MyFlagInterruptHandler(void);
+extern void MyErrorHandler(uint16_t error);
+//extern union powerstep01_Init_u initDeviceParameters;
+//#define CURRENT_MODE
+#define custom_voltage_mode
+//#define VOLTAGE_MODE
+#define full_demo
+#ifdef CURRENT_MODE
+/* Initialization parameters for current mode */
+union powerstep01_Init_u initDeviceParameters =
+{
+  /* common parameters */
+  .cm.cp.cmVmSelection = POWERSTEP01_CM_VM_CURRENT, // enum powerstep01_CmVm_t
+  1000, // Acceleration rate in step/s2, range 14.55 to 59590 steps/s^2
+  1000, // Deceleration rate in step/s2, range 14.55 to 59590 steps/s^2
+  650, // Maximum speed in step/s, range 15.25 to 15610 steps/s
+  0, // Minimum speed in step/s, range 0 to 976.3 steps/s
+  POWERSTEP01_LSPD_OPT_OFF, // Low speed optimization bit, enum powerstep01_LspdOpt_t
+  2000, // Full step speed in step/s, range 7.63 to 15625 steps/s
+  POWERSTEP01_BOOST_MODE_OFF, // Boost of the amplitude square wave, enum powerstep01_BoostMode_t
+  48, // Overcurrent threshold settings via enum powerstep01_OcdTh_t
+  STEP_MODE_1_64, // Step mode settings via enum motorStepMode_t
+  POWERSTEP01_SYNC_SEL_DISABLED, // Synch. Mode settings via enum powerstep01_SyncSel_t
+  (
+   POWERSTEP01_ALARM_EN_THERMAL_SHUTDOWN|
+   POWERSTEP01_ALARM_EN_THERMAL_WARNING|
+   POWERSTEP01_ALARM_EN_UVLO|
+   POWERSTEP01_ALARM_EN_STALL_DETECTION|
+   POWERSTEP01_ALARM_EN_SW_TURN_ON|
+   POWERSTEP01_ALARM_EN_WRONG_NPERF_CMD), // Alarm settings via bitmap enum powerstep01_AlarmEn_t
+  POWERSTEP01_IGATE_64mA, // Gate sink/source current via enum powerstep01_Igate_t
+  POWERSTEP01_TBOOST_500ns, // Duration of the overboost phase during gate turn-off via enum powerstep01_Tboost_t
+  POWERSTEP01_TCC_500ns, // Controlled current time via enum powerstep01_Tcc_t
+  POWERSTEP01_WD_EN_DISABLE, // External clock watchdog, enum powerstep01_WdEn_t
+  POWERSTEP01_TBLANK_375ns, // Duration of the blanking time via enum powerstep01_TBlank_t
+  POWERSTEP01_TDT_125ns, // Duration of the dead time via enum powerstep01_Tdt_t
+  /* current mode parameters */
+  7.8, // Hold torque in mV, range from 7.8mV to 1000 mV
+  32, // Running torque in mV, range from 7.8mV to 1000 mV
+  32, // Acceleration torque in mV, range from 7.8mV to 1000 mV
+  32, // Deceleration torque in mV, range from 7.8mV to 1000 mV
+  POWERSTEP01_TOFF_FAST_8us, //Maximum fast decay time , enum powerstep01_ToffFast_t
+  POWERSTEP01_FAST_STEP_12us, //Maximum fall step time , enum powerstep01_FastStep_t
+  3.0, // Minimum on-time in us, range 0.5us to 64us
+  21.0, // Minimum off-time in us, range 0.5us to 64us
+  POWERSTEP01_CONFIG_INT_16MHZ_OSCOUT_2MHZ, // Clock setting , enum powerstep01_ConfigOscMgmt_t
+  POWERSTEP01_CONFIG_SW_USER, // External switch hard stop interrupt mode, enum powerstep01_ConfigSwMode_t
+  POWERSTEP01_CONFIG_TQ_REG_TVAL_USED, // External torque regulation enabling , enum powerstep01_ConfigEnTqReg_t
+  POWERSTEP01_CONFIG_VS_COMP_DISABLE, // Motor Supply Voltage Compensation enabling , enum powerstep01_ConfigEnVscomp_t
+  POWERSTEP01_CONFIG_OC_SD_ENABLE, // Over current shutwdown enabling, enum powerstep01_ConfigOcSd_t
+  POWERSTEP01_CONFIG_UVLOVAL_LOW, // UVLO Threshold via powerstep01_ConfigUvLoVal_t
+  POWERSTEP01_CONFIG_VCCVAL_7_5V, // VCC Val, enum powerstep01_ConfigVccVal_t
+  POWERSTEP01_CONFIG_TSW_048us, // Switching period, enum powerstep01_ConfigTsw_t
+  POWERSTEP01_CONFIG_PRED_DISABLE, // Predictive current enabling , enum powerstep01_ConfigPredEn_t
+};
+#endif //CURRENT_MODE
 
+#ifdef VOLTAGE_MODE
+/* Initialization parameters for voltage mode */
+union powerstep01_Init_u initDeviceParameters =
+{
+  /* common parameters */
+  .vm.cp.cmVmSelection = POWERSTEP01_CM_VM_VOLTAGE, // enum powerstep01_CmVm_t
+  582, // Acceleration rate in step/s2, range 14.55 to 59590 steps/s^2
+  582, // Deceleration rate in step/s2, range 14.55 to 59590 steps/s^2
+  488, // Maximum speed in step/s, range 15.25 to 15610 steps/s
+  0, // Minimum speed in step/s, range 0 to 976.3 steps/s
+  POWERSTEP01_LSPD_OPT_OFF, // Low speed optimization bit, enum powerstep01_LspdOpt_t
+  244.16, // Full step speed in step/s, range 7.63 to 15625 steps/s
+  POWERSTEP01_BOOST_MODE_OFF, // Boost of the amplitude square wave, enum powerstep01_BoostMode_t
+  281.25, // Overcurrent threshold settings via enum powerstep01_OcdTh_t
+  STEP_MODE_1_128, // Step mode settings via enum motorStepMode_t
+  POWERSTEP01_SYNC_SEL_DISABLED, // Synch. Mode settings via enum powerstep01_SyncSel_t
+  (POWERSTEP01_ALARM_EN_OVERCURRENT|
+   POWERSTEP01_ALARM_EN_THERMAL_SHUTDOWN|
+   POWERSTEP01_ALARM_EN_THERMAL_WARNING|
+   POWERSTEP01_ALARM_EN_UVLO|
+   POWERSTEP01_ALARM_EN_STALL_DETECTION|
+   POWERSTEP01_ALARM_EN_SW_TURN_ON|
+   POWERSTEP01_ALARM_EN_WRONG_NPERF_CMD), // Alarm settings via bitmap enum powerstep01_AlarmEn_t
+  POWERSTEP01_IGATE_64mA, // Gate sink/source current via enum powerstep01_Igate_t
+  POWERSTEP01_TBOOST_0ns, // Duration of the overboost phase during gate turn-off via enum powerstep01_Tboost_t
+  POWERSTEP01_TCC_500ns, // Controlled current time via enum powerstep01_Tcc_t
+  POWERSTEP01_WD_EN_DISABLE, // External clock watchdog, enum powerstep01_WdEn_t
+  POWERSTEP01_TBLANK_375ns, // Duration of the blanking time via enum powerstep01_TBlank_t
+  POWERSTEP01_TDT_125ns, // Duration of the dead time via enum powerstep01_Tdt_t
+  /* voltage mode parameters */
+  16.02, // Hold duty cycle (torque) in %, range 0 to 99.6%
+  16.02, // Run duty cycle (torque) in %, range 0 to 99.6%
+  16.02, // Acceleration duty cycle (torque) in %, range 0 to 99.6%
+  16.02, // Deceleration duty cycle (torque) in %, range 0 to 99.6%
+  61.512, // Intersect speed settings for BEMF compensation in steps/s, range 0 to 3906 steps/s
+  0.03815, // BEMF start slope settings for BEMF compensation in % step/s, range 0 to 0.4% s/step
+  0.06256, // BEMF final acc slope settings for BEMF compensation in % step/s, range 0 to 0.4% s/step
+  0.06256, // BEMF final dec slope settings for BEMF compensation in % step/s, range 0 to 0.4% s/step
+  1, // Thermal compensation param, range 1 to 1.46875
+  531.25, // Stall threshold settings in mV, range 31.25mV to 1000mV
+  POWERSTEP01_CONFIG_INT_16MHZ_OSCOUT_2MHZ, // Clock setting , enum powerstep01_ConfigOscMgmt_t
+  POWERSTEP01_CONFIG_SW_HARD_STOP, // External switch hard stop interrupt mode, enum powerstep01_ConfigSwMode_t
+  POWERSTEP01_CONFIG_VS_COMP_DISABLE, // Motor Supply Voltage Compensation enabling , enum powerstep01_ConfigEnVscomp_t
+  POWERSTEP01_CONFIG_OC_SD_DISABLE, // Over current shutwdown enabling, enum powerstep01_ConfigOcSd_t
+  POWERSTEP01_CONFIG_UVLOVAL_LOW, // UVLO Threshold via powerstep01_ConfigUvLoVal_t
+  POWERSTEP01_CONFIG_VCCVAL_15V, // VCC Val, enum powerstep01_ConfigVccVal_t
+  POWERSTEP01_CONFIG_PWM_DIV_2, // PWM Frequency Integer division, enum powerstep01_ConfigFPwmInt_t
+  POWERSTEP01_CONFIG_PWM_MUL_1, // PWM Frequency Integer Multiplier, enum powerstep01_ConfigFPwmDec_t
+};
+#endif
 
+#ifdef custom_voltage_mode
+/* Initialization parameters for voltage mode */
+union powerstep01_Init_u initDeviceParameters =
+{
+/* common parameters */
+
+/* common parameters */
+.vm.cp.cmVmSelection = POWERSTEP01_CM_VM_VOLTAGE, // enum powerstep01_CmVm_t
+2000, // Acceleration rate in step/s2, range 14.55 to 59590 steps/s^2
+2000, // Deceleration rate in step/s2, range 14.55 to 59590 steps/s^2
+1000, // Maximum speed in step/s, range 15.25 to 15610 steps/s
+0, // Minimum speed in step/s, range 0 to 976.3 steps/s
+POWERSTEP01_LSPD_OPT_OFF, // Low speed optimization bit, enum powerstep01_LspdOpt_t
+2000, // Full step speed in step/s, range 7.63 to 15625 steps/s
+POWERSTEP01_BOOST_MODE_OFF, // Boost of the amplitude square wave, enum powerstep01_BoostMode_t
+POWERSTEP01_OCD_TH_31_25mV, // Overcurrent threshold settings via enum powerstep01_OcdTh_t
+STEP_MODE_1_64, // Step mode settings via enum motorStepMode_t
+POWERSTEP01_SYNC_SEL_DISABLED, // Synch. Mode settings via enum powerstep01_SyncSel_t
+(POWERSTEP01_ALARM_EN_OVERCURRENT|
+POWERSTEP01_ALARM_EN_THERMAL_SHUTDOWN|
+POWERSTEP01_ALARM_EN_THERMAL_WARNING|
+POWERSTEP01_ALARM_EN_UVLO|
+POWERSTEP01_ALARM_EN_STALL_DETECTION|
+POWERSTEP01_ALARM_EN_SW_TURN_ON|
+POWERSTEP01_ALARM_EN_WRONG_NPERF_CMD), // Alarm settings via bitmap enum powerstep01_AlarmEn_t
+POWERSTEP01_IGATE_32mA, // Gate sink/source current via enum powerstep01_Igate_t
+POWERSTEP01_TBOOST_0ns, // Duration of the overboost phase during gate turn-off via enum powerstep01_Tboost_t
+POWERSTEP01_TCC_875ns, // Controlled current time via enum powerstep01_Tcc_t
+POWERSTEP01_WD_EN_DISABLE, // External clock watchdog, enum powerstep01_WdEn_t
+POWERSTEP01_TBLANK_250ns, // Duration of the blanking time via enum powerstep01_TBlank_t
+POWERSTEP01_TDT_125ns, // Duration of the dead time via enum powerstep01_Tdt_t
+/* voltage mode parameters */
+3.13, // Hold duty cycle (torque) in %, range 0 to 99.6%
+25, // Run duty cycle (torque) in %, range 0 to 99.6%
+25, // Acceleration duty cycle (torque) in %, range 0 to 99.6%
+25, // Deceleration duty cycle (torque) in %, range 0 to 99.6%
+61.512, // Intersect speed settings for BEMF compensation in steps/s, range 0 to 3906 steps/s
+0.03815, // BEMF start slope settings for BEMF compensation in % step/s, range 0 to 0.4% s/step
+0.06256, // BEMF final acc slope settings for BEMF compensation in % step/s, range 0 to 0.4% s/step
+0.06256, // BEMF final dec slope settings for BEMF compensation in % step/s, range 0 to 0.4% s/step
+1, // Thermal compensation param, range 1 to 1.46875
+531.25, // Stall threshold settings in mV, range 31.25mV to 1000mV
+POWERSTEP01_CONFIG_INT_16MHZ_OSCOUT_2MHZ, // Clock setting , enum powerstep01_ConfigOscMgmt_t
+POWERSTEP01_CONFIG_SW_HARD_STOP, // External switch hard stop interrupt mode, enum powerstep01_ConfigSwMode_t
+POWERSTEP01_CONFIG_VS_COMP_DISABLE, // Motor Supply Voltage Compensation enabling , enum powerstep01_ConfigEnVscomp_t
+POWERSTEP01_CONFIG_OC_SD_DISABLE, // Over current shutwdown enabling, enum powerstep01_ConfigOcSd_t
+POWERSTEP01_CONFIG_UVLOVAL_LOW, // UVLO Threshold via powerstep01_ConfigUvLoVal_t
+POWERSTEP01_CONFIG_VCCVAL_7_5V, // VCC Val, enum powerstep01_ConfigVccVal_t
+POWERSTEP01_CONFIG_PWM_DIV_1, // PWM Frequency Integer division, enum powerstep01_ConfigFPwmInt_t
+POWERSTEP01_CONFIG_PWM_MUL_0_75, // PWM Frequency Integer Multiplier, enum powerstep01_ConfigFPwmDec_t
+};
+#endif //VOLTAGE_MODE
 /* Private function prototypes -----------------------------------------------*/
 void ExecuteMonitor(void);
 
@@ -306,7 +469,9 @@ void Module_Peripheral_Init(void){
 	MX_USART4_UART_Init();
 	MX_USART5_UART_Init();
 	MX_USART6_UART_Init();
-
+    MX_GPIO_Init();
+	MX_SPI1_Init();
+    MX_TIM4_Init();
 
 	/* Create module special task (if needed) */
 }
@@ -389,7 +554,30 @@ void RegisterModuleCLICommands(void){
  |								  APIs							          | 																 	|
 /* -----------------------------------------------------------------------
  */
+void StepperIcInit()
+{
 
+	/* Set the Powerstep01 library to use 1 device */
+	Powerstep01_SetNbDevices(1);
+
+	/* device with the union declared in the the H17R1.h file and comment the    */
+	/* subsequent call having the NULL pointer                                  */
+	Powerstep01_Init(&initDeviceParameters);
+
+	/* Attach the function MyFlagInterruptHandler (defined below) to the flag interrupt */
+	Powerstep01_AttachFlagInterrupt(MyFlagInterruptHandler);
+	/* Attach the function MyBusyInterruptHandler (defined below) to the busy interrupt */
+	Powerstep01_AttachBusyInterrupt(MyBusyInterruptHandler);
+	/* Attach the function Error_Handler (defined below) to the error Handler*/
+	Powerstep01_AttachErrorHandler(MyErrorHandler);
+
+}
+void StepperMove(uint8_t deviceId, motorDir_t direction,  uint32_t n_step)
+{
+
+	 Powerstep01_CmdMove(deviceId, direction, n_step);
+     Powerstep01_WaitWhileActive(deviceId);
+}
 
 /*-----------------------------------------------------------*/
 

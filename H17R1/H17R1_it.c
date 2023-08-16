@@ -9,7 +9,7 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "BOS.h"
-
+#include "powerstep01.h"
 uint8_t temp_length[NumOfPorts] = {0};
 uint8_t temp_index[NumOfPorts] = {0};
 uint8_t* error_restart_message = "Restarting...\r\n";
@@ -18,7 +18,10 @@ uint8_t* error_restart_message = "Restarting...\r\n";
 /* External variables --------------------------------------------------------*/
 extern uint8_t UARTRxBuf[NumOfPorts][MSG_RX_BUF_SIZE];
 extern uint8_t UARTRxBufIndex[NumOfPorts];
-
+extern TIM_HandleTypeDef htim4;
+ void MyBusyInterruptHandler(void);
+ void MyFlagInterruptHandler(void);
+ void MyErrorHandler(uint16_t error);
 /* External function prototypes ----------------------------------------------*/
 
 extern TaskHandle_t xCommandConsoleTaskHandle; // CLI Task handler.
@@ -119,9 +122,194 @@ void USART3_4_5_6_LPUART1_IRQHandler(void){
 	 unblocked (higher priority) task is returned to immediately. */
 	portEND_SWITCHING_ISR(xHigherPriorityTaskWoken);
 }
-
 /*-----------------------------------------------------------*/
+void EXTI4_15_IRQHandler(void)
+{
+  /* USER CODE BEGIN EXTI4_15_IRQn 0 */
 
+  /* USER CODE END EXTI4_15_IRQn 0 */
+  HAL_GPIO_EXTI_IRQHandler(FLAG_Pin);
+  HAL_GPIO_EXTI_IRQHandler(BUSY_Pin);
+  /* USER CODE BEGIN EXTI4_15_IRQn 1 */
+
+  /* USER CODE END EXTI4_15_IRQn 1 */
+}
+/*-----------------------------------------------------------*/
+/**
+  * @brief This function handles TIM3, TIM4 global Interrupt.
+  */
+void TIM3_TIM4_IRQHandler(void)
+{
+  /* USER CODE BEGIN TIM3_TIM4_IRQn 0 */
+
+  /* USER CODE END TIM3_TIM4_IRQn 0 */
+  HAL_TIM_IRQHandler(&htim4);
+  /* USER CODE BEGIN TIM3_TIM4_IRQn 1 */
+
+  /* USER CODE END TIM3_TIM4_IRQn 1 */
+}
+/*-----------------------------------------------------------*/
+/*-----------------------------------------------------------*/
+void MyFlagInterruptHandler(void)
+{
+  /* Get the value of the status register via the command GET_STATUS */
+	  // HAL_GPIO_WritePin(LED_GPIO_Port, LED_Pin, GPIO_PIN_SET);
+
+	uint16_t statusRegister = Powerstep01_CmdGetStatus(0);
+
+  /* Check HIZ flag: if set, power brigdes are disabled */
+  if ((statusRegister & POWERSTEP01_STATUS_HIZ) == POWERSTEP01_STATUS_HIZ)
+  {
+    // HIZ state
+  }
+
+  /* Check BUSY flag: if not set, a command is under execution */
+  if ((statusRegister & POWERSTEP01_STATUS_BUSY) == 0)
+  {
+    // BUSY
+  }
+
+  /* Check SW_F flag: if not set, the SW input is opened */
+  if ((statusRegister & POWERSTEP01_STATUS_SW_F ) == 0)
+  {
+     // SW OPEN
+  }
+  else
+  {
+    // SW CLOSED
+  }
+  /* Check SW_EN bit */
+  if ((statusRegister & POWERSTEP01_STATUS_SW_EVN) == POWERSTEP01_STATUS_SW_EVN)
+  {
+    // switch turn_on event
+  }
+  /* Check direction bit */
+  if ((statusRegister & POWERSTEP01_STATUS_DIR) == 0)
+  {
+    // BACKWARD
+  }
+  else
+  {
+    // FORWARD
+  }
+  if ((statusRegister & POWERSTEP01_STATUS_MOT_STATUS) == POWERSTEP01_STATUS_MOT_STATUS_STOPPED )
+  {
+       // MOTOR STOPPED
+  }
+  else  if ((statusRegister & POWERSTEP01_STATUS_MOT_STATUS) == POWERSTEP01_STATUS_MOT_STATUS_ACCELERATION )
+  {
+           // MOTOR ACCELERATION
+  }
+  else  if ((statusRegister & POWERSTEP01_STATUS_MOT_STATUS) == POWERSTEP01_STATUS_MOT_STATUS_DECELERATION )
+  {
+           // MOTOR DECELERATION
+  }
+  else  if ((statusRegister & POWERSTEP01_STATUS_MOT_STATUS) == POWERSTEP01_STATUS_MOT_STATUS_CONST_SPD )
+  {
+       // MOTOR RUNNING AT CONSTANT SPEED
+  }
+
+  /* Check Command Error flag: if set, the command received by SPI can't be */
+  /* performed. This occurs for instance when a move command is sent to the */
+  /* Powerstep01 while it is already running */
+  if ((statusRegister & POWERSTEP01_STATUS_CMD_ERROR) == POWERSTEP01_STATUS_CMD_ERROR)
+  {
+       // Command Error
+  }
+
+  /* Check Step mode clock flag: if set, the device is working in step clock mode */
+  if ((statusRegister & POWERSTEP01_STATUS_STCK_MOD) == POWERSTEP01_STATUS_STCK_MOD)
+  {
+     //Step clock mode enabled
+  }
+
+  /* Check UVLO flag: if not set, there is an undervoltage lock-out */
+  if ((statusRegister & POWERSTEP01_STATUS_UVLO) == 0)
+  {
+     //undervoltage lock-out
+  }
+
+  /* Check UVLO ADC flag: if not set, there is an ADC undervoltage lock-out */
+  if ((statusRegister & POWERSTEP01_STATUS_UVLO_ADC) == 0)
+  {
+     //ADC undervoltage lock-out
+  }
+
+  /* Check thermal STATUS flags: if  set, the thermal status is not normal */
+  if ((statusRegister & POWERSTEP01_STATUS_TH_STATUS) != 0)
+  {
+    //thermal status: 1: Warning, 2: Bridge shutdown, 3: Device shutdown
+  }
+
+  /* Check OCD  flag: if not set, there is an overcurrent detection */
+  if ((statusRegister & POWERSTEP01_STATUS_OCD) == 0)
+  {
+    //overcurrent detection
+  }
+
+  /* Check STALL_A flag: if not set, there is a Stall condition on bridge A */
+  if ((statusRegister & POWERSTEP01_STATUS_STALL_A) == 0)
+  {
+    //overcurrent detection
+  }
+
+  /* Check STALL_B flag: if not set, there is a Stall condition on bridge B */
+  if ((statusRegister & POWERSTEP01_STATUS_STALL_B) == 0)
+  {
+    //overcurrent detection
+  }
+
+}
+
+/**
+  * @brief  This function is the User handler for the busy interrupt
+  * @param  None
+  * @retval None
+  */
+void MyBusyInterruptHandler(void)
+{
+
+   if (Powerstep01_CheckBusyHw())
+   {
+      /* Busy pin is low, so at list one Powerstep01 chip is busy */
+     /* To be customized (for example Switch on a LED) */
+   }
+   else
+   {
+     /* To be customized (for example Switch off a LED) */
+   }
+}
+void MyErrorHandler(uint16_t error)
+{
+
+  Error_Handler();
+}
+/**
+  * @brief External Line Callback
+  * @param[in] GPIO_Pin pin number
+  * @retval None
+  */
+
+void HAL_GPIO_EXTI_Rising_Callback(uint16_t GPIO_Pin)
+{
+	 if (GPIO_Pin == BUSY_Pin)
+		    {
+			  Powerstep01_BusyInterruptHandler();
+		}
+}
+
+void HAL_GPIO_EXTI_Falling_Callback(uint16_t GPIO_Pin)
+{
+	 if (GPIO_Pin == BUSY_Pin)
+	    {
+		  Powerstep01_BusyInterruptHandler();
+	}
+
+	  if (GPIO_Pin == FLAG_Pin)
+	  {
+		  Powerstep01_FlagInterruptHandler();
+	  }
+}
 /**
  * @brief This function handles DMA1 channel 1 interrupt (Uplink DMA 1).
  */

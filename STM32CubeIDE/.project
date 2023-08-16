@@ -184,6 +184,16 @@
 			<locationURI>PARENT-1-PROJECT_LOC/H17R1/H17R1_rtc.c</locationURI>
 		</link>
 		<link>
+			<name>H17R1/H17R1_spi.c</name>
+			<type>1</type>
+			<locationURI>PARENT-1-PROJECT_LOC/H17R1/G0_MCU_Hardware.c</locationURI>
+		</link>
+		<link>
+			<name>H17R1/H17R1_spi.h</name>
+			<type>1</type>
+			<locationURI>PARENT-1-PROJECT_LOC/H17R1/H17R1_spi.h</locationURI>
+		</link>
+		<link>
 			<name>H17R1/H17R1_timers.c</name>
 			<type>1</type>
 			<locationURI>PARENT-1-PROJECT_LOC/H17R1/H17R1_timers.c</locationURI>
@@ -197,6 +207,26 @@
 			<name>H17R1/H17R1_uart.h</name>
 			<type>1</type>
 			<locationURI>PARENT-1-PROJECT_LOC/H17R1/H17R1_uart.h</locationURI>
+		</link>
+		<link>
+			<name>H17R1/motor.h</name>
+			<type>1</type>
+			<locationURI>PARENT-1-PROJECT_LOC/H17R1/motor.h</locationURI>
+		</link>
+		<link>
+			<name>H17R1/powerstep01.c</name>
+			<type>1</type>
+			<locationURI>PARENT-1-PROJECT_LOC/H17R1/powerstep01.c</locationURI>
+		</link>
+		<link>
+			<name>H17R1/powerstep01.h</name>
+			<type>1</type>
+			<locationURI>PARENT-1-PROJECT_LOC/H17R1/powerstep01.h</locationURI>
+		</link>
+		<link>
+			<name>H17R1/powerstep01_target_config.h</name>
+			<type>1</type>
+			<locationURI>PARENT-1-PROJECT_LOC/H17R1/powerstep01_target_config.h</locationURI>
 		</link>
 		<link>
 			<name>H17R1/startup_stm32g0b1ceuxn.s</name>

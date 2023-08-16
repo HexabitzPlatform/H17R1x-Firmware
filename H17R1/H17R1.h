@@ -25,6 +25,7 @@
 #include "H17R1_dma.h"
 #include "H17R1_inputs.h"
 #include "H17R1_eeprom.h"
+#include "powerstep01.h"
 /* Exported definitions -------------------------------------------------------*/
 
 #define	modulePN		_H17R1
@@ -100,6 +101,16 @@
 #define	USART6_AF			GPIO_AF8_USART6
 
 /* Module-specific Definitions */
+#define FLAG_Pin GPIO_PIN_11
+#define FLAG_GPIO_Port GPIOA
+#define FLAG_EXTI_IRQn EXTI4_15_IRQn
+#define BUSY_Pin GPIO_PIN_12
+#define BUSY_GPIO_Port GPIOA
+#define BUSY_EXTI_IRQn EXTI4_15_IRQn
+#define RESET_Pin GPIO_PIN_6
+#define RESET_GPIO_Port GPIOB
+#define STCK_Pin GPIO_PIN_7
+#define STCK_GPIO_Port GPIOB
 
 #define NUM_MODULE_PARAMS						1
 
@@ -137,7 +148,8 @@ extern void MX_USART5_UART_Init(void);
 extern void MX_USART6_UART_Init(void);
 extern void SystemClock_Config(void);
 extern void ExecuteMonitor(void);
-
+void StepperIcInit();
+void StepperMove(uint8_t deviceId, motorDir_t direction,  uint32_t n_step);
 /* -----------------------------------------------------------------------
  |								  APIs							          |  																 	|
 /* -----------------------------------------------------------------------
