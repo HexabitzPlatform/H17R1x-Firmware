@@ -41,8 +41,8 @@ extern void MyFlagInterruptHandler(void);
 extern void MyErrorHandler(uint16_t error);
 //extern union powerstep01_Init_u initDeviceParameters;
 //#define CURRENT_MODE
-#define custom_voltage_mode
-//#define VOLTAGE_MODE
+//#define custom_voltage_mode
+#define VOLTAGE_MODE
 #define full_demo
 #ifdef CURRENT_MODE
 /* Initialization parameters for current mode */
@@ -50,15 +50,15 @@ union powerstep01_Init_u initDeviceParameters =
 {
   /* common parameters */
   .cm.cp.cmVmSelection = POWERSTEP01_CM_VM_CURRENT, // enum powerstep01_CmVm_t
-  1000, // Acceleration rate in step/s2, range 14.55 to 59590 steps/s^2
+  4000, // Acceleration rate in step/s2, range 14.55 to 59590 steps/s^2
   1000, // Deceleration rate in step/s2, range 14.55 to 59590 steps/s^2
-  650, // Maximum speed in step/s, range 15.25 to 15610 steps/s
+  15610, // Maximum speed in step/s, range 15.25 to 15610 steps/s
   0, // Minimum speed in step/s, range 0 to 976.3 steps/s
   POWERSTEP01_LSPD_OPT_OFF, // Low speed optimization bit, enum powerstep01_LspdOpt_t
   2000, // Full step speed in step/s, range 7.63 to 15625 steps/s
   POWERSTEP01_BOOST_MODE_OFF, // Boost of the amplitude square wave, enum powerstep01_BoostMode_t
   48, // Overcurrent threshold settings via enum powerstep01_OcdTh_t
-  STEP_MODE_1_64, // Step mode settings via enum motorStepMode_t
+  STEP_MODE_1_16, // Step mode settings via enum motorStepMode_t
   POWERSTEP01_SYNC_SEL_DISABLED, // Synch. Mode settings via enum powerstep01_SyncSel_t
   (
    POWERSTEP01_ALARM_EN_THERMAL_SHUTDOWN|
@@ -82,7 +82,7 @@ union powerstep01_Init_u initDeviceParameters =
   POWERSTEP01_FAST_STEP_12us, //Maximum fall step time , enum powerstep01_FastStep_t
   3.0, // Minimum on-time in us, range 0.5us to 64us
   21.0, // Minimum off-time in us, range 0.5us to 64us
-  POWERSTEP01_CONFIG_INT_16MHZ_OSCOUT_2MHZ, // Clock setting , enum powerstep01_ConfigOscMgmt_t
+  POWERSTEP01_CONFIG_INT_16MHZ, // Clock setting , enum powerstep01_ConfigOscMgmt_t
   POWERSTEP01_CONFIG_SW_USER, // External switch hard stop interrupt mode, enum powerstep01_ConfigSwMode_t
   POWERSTEP01_CONFIG_TQ_REG_TVAL_USED, // External torque regulation enabling , enum powerstep01_ConfigEnTqReg_t
   POWERSTEP01_CONFIG_VS_COMP_DISABLE, // Motor Supply Voltage Compensation enabling , enum powerstep01_ConfigEnVscomp_t
@@ -140,8 +140,8 @@ union powerstep01_Init_u initDeviceParameters =
   POWERSTEP01_CONFIG_OC_SD_DISABLE, // Over current shutwdown enabling, enum powerstep01_ConfigOcSd_t
   POWERSTEP01_CONFIG_UVLOVAL_LOW, // UVLO Threshold via powerstep01_ConfigUvLoVal_t
   POWERSTEP01_CONFIG_VCCVAL_15V, // VCC Val, enum powerstep01_ConfigVccVal_t
-  POWERSTEP01_CONFIG_PWM_DIV_2, // PWM Frequency Integer division, enum powerstep01_ConfigFPwmInt_t
-  POWERSTEP01_CONFIG_PWM_MUL_1, // PWM Frequency Integer Multiplier, enum powerstep01_ConfigFPwmDec_t
+  POWERSTEP01_CONFIG_PWM_DIV_1, // PWM Frequency Integer division, enum powerstep01_ConfigFPwmInt_t
+  POWERSTEP01_CONFIG_PWM_MUL_0_75, // PWM Frequency Integer Multiplier, enum powerstep01_ConfigFPwmDec_t
 };
 #endif
 
@@ -153,15 +153,15 @@ union powerstep01_Init_u initDeviceParameters =
 
 /* common parameters */
 .vm.cp.cmVmSelection = POWERSTEP01_CM_VM_VOLTAGE, // enum powerstep01_CmVm_t
-2000, // Acceleration rate in step/s2, range 14.55 to 59590 steps/s^2
-2000, // Deceleration rate in step/s2, range 14.55 to 59590 steps/s^2
-1000, // Maximum speed in step/s, range 15.25 to 15610 steps/s
+582, // Acceleration rate in step/s2, range 14.55 to 59590 steps/s^2
+582, // Deceleration rate in step/s2, range 14.55 to 59590 steps/s^2
+488, // Maximum speed in step/s, range 15.25 to 15610 steps/s
 0, // Minimum speed in step/s, range 0 to 976.3 steps/s
 POWERSTEP01_LSPD_OPT_OFF, // Low speed optimization bit, enum powerstep01_LspdOpt_t
 2000, // Full step speed in step/s, range 7.63 to 15625 steps/s
 POWERSTEP01_BOOST_MODE_OFF, // Boost of the amplitude square wave, enum powerstep01_BoostMode_t
 POWERSTEP01_OCD_TH_31_25mV, // Overcurrent threshold settings via enum powerstep01_OcdTh_t
-STEP_MODE_1_64, // Step mode settings via enum motorStepMode_t
+STEP_MODE_1_8, // Step mode settings via enum motorStepMode_t
 POWERSTEP01_SYNC_SEL_DISABLED, // Synch. Mode settings via enum powerstep01_SyncSel_t
 (POWERSTEP01_ALARM_EN_OVERCURRENT|
 POWERSTEP01_ALARM_EN_THERMAL_SHUTDOWN|
@@ -193,8 +193,8 @@ POWERSTEP01_CONFIG_VS_COMP_DISABLE, // Motor Supply Voltage Compensation enablin
 POWERSTEP01_CONFIG_OC_SD_DISABLE, // Over current shutwdown enabling, enum powerstep01_ConfigOcSd_t
 POWERSTEP01_CONFIG_UVLOVAL_LOW, // UVLO Threshold via powerstep01_ConfigUvLoVal_t
 POWERSTEP01_CONFIG_VCCVAL_7_5V, // VCC Val, enum powerstep01_ConfigVccVal_t
-POWERSTEP01_CONFIG_PWM_DIV_1, // PWM Frequency Integer division, enum powerstep01_ConfigFPwmInt_t
-POWERSTEP01_CONFIG_PWM_MUL_0_75, // PWM Frequency Integer Multiplier, enum powerstep01_ConfigFPwmDec_t
+POWERSTEP01_CONFIG_PWM_DIV_2, // PWM Frequency Integer division, enum powerstep01_ConfigFPwmInt_t
+POWERSTEP01_CONFIG_PWM_MUL_1, // PWM Frequency Integer Multiplier, enum powerstep01_ConfigFPwmDec_t
 };
 #endif //VOLTAGE_MODE
 /* Private function prototypes -----------------------------------------------*/
@@ -472,7 +472,7 @@ void Module_Peripheral_Init(void){
     MX_GPIO_Init();
 	MX_SPI1_Init();
     MX_TIM4_Init();
-
+    StepperIcInit();
 	/* Create module special task (if needed) */
 }
 
@@ -578,6 +578,32 @@ void StepperMove(uint8_t deviceId, motorDir_t direction,  uint32_t n_step)
 	 Powerstep01_CmdMove(deviceId, direction, n_step);
      Powerstep01_WaitWhileActive(deviceId);
 }
+
+void StepperRun(uint8_t deviceId, motorDir_t direction, uint32_t speed)
+{
+	 Powerstep01_CmdRun(deviceId, direction, speed);
+}
+
+void StepperStop(uint8_t deviceId,StoppingMethod mode )
+{
+
+	switch(mode)
+	{
+	case SoftStop :
+		Powerstep01_CmdSoftStop(0);
+		break;
+	case HardStop :
+    	Powerstep01_CmdHardStop(0);
+    	break;
+	case Clock :
+	    Powerstep01_StopStepClock();
+	    break;
+
+	   default:
+		break;
+	}
+}
+
 
 /*-----------------------------------------------------------*/
 

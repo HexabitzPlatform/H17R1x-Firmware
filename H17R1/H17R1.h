@@ -26,6 +26,7 @@
 #include "H17R1_inputs.h"
 #include "H17R1_eeprom.h"
 #include "powerstep01.h"
+
 /* Exported definitions -------------------------------------------------------*/
 
 #define	modulePN		_H17R1
@@ -121,6 +122,12 @@
 
 /* Module_Status Type Definition */
 typedef enum {
+	SoftStop =0,
+	HardStop,
+	Clock
+} StoppingMethod;
+
+typedef enum {
 	H17R1_OK =0,
 	H17R1_ERR_UnknownMessage,
 	H17R1_ERR_WrongParams,
@@ -150,6 +157,8 @@ extern void SystemClock_Config(void);
 extern void ExecuteMonitor(void);
 void StepperIcInit();
 void StepperMove(uint8_t deviceId, motorDir_t direction,  uint32_t n_step);
+void StepperRun(uint8_t deviceId, motorDir_t direction, uint32_t speed);
+void StepperStop(uint8_t deviceId,StoppingMethod mode );
 /* -----------------------------------------------------------------------
  |								  APIs							          |  																 	|
 /* -----------------------------------------------------------------------

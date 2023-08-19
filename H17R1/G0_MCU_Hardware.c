@@ -41,7 +41,7 @@ extern TIM_HandleTypeDef htim4;
 /** @defgroup G0_MCU_Hardware_Private_Function_Prototypes Board Private Function Prototypes
   * @{
   */
-
+extern void StartMilliDelay(uint16_t Delay);
 void Powerstep01_Board_Delay(uint32_t delay);         //Delay of the requested number of milliseconds
 void Powerstep01_Board_EnableIrq(void);               //Disable Irq
 void Powerstep01_Board_DisableIrq(void);              //Enable Irq
@@ -69,7 +69,9 @@ uint32_t Powerstep01_Board_FLAG_PIN_GetState(void); //Returns the FLAG pin state
  **********************************************************/
 void Powerstep01_Board_Delay(uint32_t delay)
 {
-  HAL_Delay(delay);
+
+   StartMilliDelay(1);
+
 }
 
 /******************************************************//**

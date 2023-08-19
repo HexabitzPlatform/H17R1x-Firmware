@@ -310,6 +310,7 @@ void Powerstep01_Init(void* pInit)
   Powerstep01_Board_ReleaseReset(powerstep01DriverInstance);
   
   /* Let a delay after reset */
+
   Powerstep01_Board_Delay(1);
 
   if (pInit == 0)
