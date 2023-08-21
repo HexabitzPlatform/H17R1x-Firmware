@@ -33,7 +33,7 @@
 
 
 /* Port-related definitions */
-#define	NumOfPorts			6
+#define	NumOfPorts			4
 
 #define P_PROG 				P2						/* ST factory bootloader UART */
 
@@ -42,8 +42,8 @@
 #define _P2 
 #define _P3 
 #define _P4 
-#define _P5 
-#define _P6
+//#define _P5
+//#define _P6
 
 /* Define available USARTs */
 #define _Usart1 1
@@ -56,12 +56,12 @@
 
 /* Port-UART mapping */
 
-#define P1uart &huart4
+#define P1uart &huart6
 #define P2uart &huart2
 #define P3uart &huart3
-#define P4uart &huart1
-#define P5uart &huart5
-#define P6uart &huart6
+#define P4uart &huart5
+#define P5uart &huart1
+#define P6uart &huart4
 
 
 /* Port Definitions */
@@ -156,9 +156,9 @@ extern void MX_USART6_UART_Init(void);
 extern void SystemClock_Config(void);
 extern void ExecuteMonitor(void);
 void StepperIcInit();
-void StepperMove(uint8_t deviceId, motorDir_t direction,  uint32_t n_step);
-void StepperRun(uint8_t deviceId, motorDir_t direction, uint32_t speed);
-void StepperStop(uint8_t deviceId,StoppingMethod mode );
+void StepperMove( motorDir_t direction,  uint32_t n_step);
+void StepperRun( motorDir_t direction, uint32_t speed);
+void StepperStop(StoppingMethod mode );
 /* -----------------------------------------------------------------------
  |								  APIs							          |  																 	|
 /* -----------------------------------------------------------------------

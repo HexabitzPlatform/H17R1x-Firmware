@@ -39,18 +39,18 @@ module_param_t modParam[NUM_MODULE_PARAMS] ={{.paramPtr = NULL, .paramFormat =FM
 extern void MyBusyInterruptHandler(void);
 extern void MyFlagInterruptHandler(void);
 extern void MyErrorHandler(uint16_t error);
-//extern union powerstep01_Init_u initDeviceParameters;
-//#define CURRENT_MODE
-//#define custom_voltage_mode
-#define VOLTAGE_MODE
-#define full_demo
+
+#define CURRENT_MODE
+//#define VOLTAGE_MODE
+//Here we set the parameters of our motor whether we choose to work with current or voltage mode
+//the current mode is better when high speed is needed
 #ifdef CURRENT_MODE
 /* Initialization parameters for current mode */
 union powerstep01_Init_u initDeviceParameters =
 {
   /* common parameters */
   .cm.cp.cmVmSelection = POWERSTEP01_CM_VM_CURRENT, // enum powerstep01_CmVm_t
-  4000, // Acceleration rate in step/s2, range 14.55 to 59590 steps/s^2
+  5000, // Acceleration rate in step/s2, range 14.55 to 59590 steps/s^2
   1000, // Deceleration rate in step/s2, range 14.55 to 59590 steps/s^2
   15610, // Maximum speed in step/s, range 15.25 to 15610 steps/s
   0, // Minimum speed in step/s, range 0 to 976.3 steps/s
@@ -145,58 +145,7 @@ union powerstep01_Init_u initDeviceParameters =
 };
 #endif
 
-#ifdef custom_voltage_mode
-/* Initialization parameters for voltage mode */
-union powerstep01_Init_u initDeviceParameters =
-{
-/* common parameters */
 
-/* common parameters */
-.vm.cp.cmVmSelection = POWERSTEP01_CM_VM_VOLTAGE, // enum powerstep01_CmVm_t
-582, // Acceleration rate in step/s2, range 14.55 to 59590 steps/s^2
-582, // Deceleration rate in step/s2, range 14.55 to 59590 steps/s^2
-488, // Maximum speed in step/s, range 15.25 to 15610 steps/s
-0, // Minimum speed in step/s, range 0 to 976.3 steps/s
-POWERSTEP01_LSPD_OPT_OFF, // Low speed optimization bit, enum powerstep01_LspdOpt_t
-2000, // Full step speed in step/s, range 7.63 to 15625 steps/s
-POWERSTEP01_BOOST_MODE_OFF, // Boost of the amplitude square wave, enum powerstep01_BoostMode_t
-POWERSTEP01_OCD_TH_31_25mV, // Overcurrent threshold settings via enum powerstep01_OcdTh_t
-STEP_MODE_1_8, // Step mode settings via enum motorStepMode_t
-POWERSTEP01_SYNC_SEL_DISABLED, // Synch. Mode settings via enum powerstep01_SyncSel_t
-(POWERSTEP01_ALARM_EN_OVERCURRENT|
-POWERSTEP01_ALARM_EN_THERMAL_SHUTDOWN|
-POWERSTEP01_ALARM_EN_THERMAL_WARNING|
-POWERSTEP01_ALARM_EN_UVLO|
-POWERSTEP01_ALARM_EN_STALL_DETECTION|
-POWERSTEP01_ALARM_EN_SW_TURN_ON|
-POWERSTEP01_ALARM_EN_WRONG_NPERF_CMD), // Alarm settings via bitmap enum powerstep01_AlarmEn_t
-POWERSTEP01_IGATE_32mA, // Gate sink/source current via enum powerstep01_Igate_t
-POWERSTEP01_TBOOST_0ns, // Duration of the overboost phase during gate turn-off via enum powerstep01_Tboost_t
-POWERSTEP01_TCC_875ns, // Controlled current time via enum powerstep01_Tcc_t
-POWERSTEP01_WD_EN_DISABLE, // External clock watchdog, enum powerstep01_WdEn_t
-POWERSTEP01_TBLANK_250ns, // Duration of the blanking time via enum powerstep01_TBlank_t
-POWERSTEP01_TDT_125ns, // Duration of the dead time via enum powerstep01_Tdt_t
-/* voltage mode parameters */
-3.13, // Hold duty cycle (torque) in %, range 0 to 99.6%
-25, // Run duty cycle (torque) in %, range 0 to 99.6%
-25, // Acceleration duty cycle (torque) in %, range 0 to 99.6%
-25, // Deceleration duty cycle (torque) in %, range 0 to 99.6%
-61.512, // Intersect speed settings for BEMF compensation in steps/s, range 0 to 3906 steps/s
-0.03815, // BEMF start slope settings for BEMF compensation in % step/s, range 0 to 0.4% s/step
-0.06256, // BEMF final acc slope settings for BEMF compensation in % step/s, range 0 to 0.4% s/step
-0.06256, // BEMF final dec slope settings for BEMF compensation in % step/s, range 0 to 0.4% s/step
-1, // Thermal compensation param, range 1 to 1.46875
-531.25, // Stall threshold settings in mV, range 31.25mV to 1000mV
-POWERSTEP01_CONFIG_INT_16MHZ_OSCOUT_2MHZ, // Clock setting , enum powerstep01_ConfigOscMgmt_t
-POWERSTEP01_CONFIG_SW_HARD_STOP, // External switch hard stop interrupt mode, enum powerstep01_ConfigSwMode_t
-POWERSTEP01_CONFIG_VS_COMP_DISABLE, // Motor Supply Voltage Compensation enabling , enum powerstep01_ConfigEnVscomp_t
-POWERSTEP01_CONFIG_OC_SD_DISABLE, // Over current shutwdown enabling, enum powerstep01_ConfigOcSd_t
-POWERSTEP01_CONFIG_UVLOVAL_LOW, // UVLO Threshold via powerstep01_ConfigUvLoVal_t
-POWERSTEP01_CONFIG_VCCVAL_7_5V, // VCC Val, enum powerstep01_ConfigVccVal_t
-POWERSTEP01_CONFIG_PWM_DIV_2, // PWM Frequency Integer division, enum powerstep01_ConfigFPwmInt_t
-POWERSTEP01_CONFIG_PWM_MUL_1, // PWM Frequency Integer Multiplier, enum powerstep01_ConfigFPwmDec_t
-};
-#endif //VOLTAGE_MODE
 /* Private function prototypes -----------------------------------------------*/
 void ExecuteMonitor(void);
 
@@ -481,10 +430,16 @@ void Module_Peripheral_Init(void){
  */
 Module_Status Module_MessagingTask(uint16_t code,uint8_t port,uint8_t src,uint8_t dst,uint8_t shift){
 	Module_Status result =H17R1_OK;
-
+	motorDir_t Direction=0;
+	uint32_t Steps=0;
+	uint32_t Speed=0;
 
 	switch(code){
-
+	    case CODE_H17R1_STEPPER_MOVE :
+	    Steps=((uint32_t) cMessage[port - 1][shift] + (uint32_t) (cMessage[port - 1][1+shift] <<8) + (uint32_t) (cMessage[port - 1][2+shift]<<16) + (uint32_t) (cMessage[port - 1][3+shift] <<24));
+	    Direction=cMessage[port - 1][shift+5];
+	    StepperMove(Direction,Steps);
+	    break;
 		default:
 			result =H17R1_ERR_UnknownMessage;
 			break;
@@ -572,19 +527,23 @@ void StepperIcInit()
 	Powerstep01_AttachErrorHandler(MyErrorHandler);
 
 }
-void StepperMove(uint8_t deviceId, motorDir_t direction,  uint32_t n_step)
+
+// StepperMove : the motor wil move depending on the number of steps
+void StepperMove( motorDir_t direction,  uint32_t n_step)
 {
 
-	 Powerstep01_CmdMove(deviceId, direction, n_step);
-     Powerstep01_WaitWhileActive(deviceId);
+	 Powerstep01_CmdMove(0, direction, n_step);
+     Powerstep01_WaitWhileActive(0);
 }
 
-void StepperRun(uint8_t deviceId, motorDir_t direction, uint32_t speed)
+// StepperRun : the motor will run with the given speed unti it is stopped using StepperStop function
+//  speed in 2^-28 step/tick
+void StepperRun( motorDir_t direction, uint32_t speed)
 {
-	 Powerstep01_CmdRun(deviceId, direction, speed);
+	 Powerstep01_CmdRun(0, direction, speed);
 }
 
-void StepperStop(uint8_t deviceId,StoppingMethod mode )
+void StepperStop(StoppingMethod mode )
 {
 
 	switch(mode)
