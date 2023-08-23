@@ -19,6 +19,7 @@ uint8_t* error_restart_message = "Restarting...\r\n";
 extern uint8_t UARTRxBuf[NumOfPorts][MSG_RX_BUF_SIZE];
 extern uint8_t UARTRxBufIndex[NumOfPorts];
 extern TIM_HandleTypeDef htim4;
+extern void Error_Handler(void);
  void MyBusyInterruptHandler(void);
  void MyFlagInterruptHandler(void);
  void MyErrorHandler(uint16_t error);

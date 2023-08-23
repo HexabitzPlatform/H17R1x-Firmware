@@ -29,12 +29,13 @@ void UserTask(void *argument){
 	    int32_t pos=0;
 	    uint32_t readData;
 
-StepperMove(Backward,10000);
+//StepperMove(Backward,10000);
+//StepperStop(SoftStop);
+	 //   StepperRun( Backward, 3000);
 
-	    StepperRun( Backward, 3000);
-
-	    StepperStop(SoftStop);
+	 //   StepperStop(SoftStop);
 	    StepperRun(Forward, 6000);
+	    StepperStop(SoftStop);
 	    StepperRun(Forward, 9000);
 	    StepperStop(HardStop);
 

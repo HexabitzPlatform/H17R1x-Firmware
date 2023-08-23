@@ -412,10 +412,9 @@ void SetupPortForRemoteBootloaderUpdate(uint8_t port){
 void Module_Peripheral_Init(void){
 
 	/* Array ports */
-	MX_USART1_UART_Init();
+
 	MX_USART2_UART_Init();
 	MX_USART3_UART_Init();
-	MX_USART4_UART_Init();
 	MX_USART5_UART_Init();
 	MX_USART6_UART_Init();
     MX_GPIO_Init();
@@ -435,6 +434,7 @@ Module_Status Module_MessagingTask(uint16_t code,uint8_t port,uint8_t src,uint8_
 	uint32_t Speed=0;
 
 	switch(code){
+	/*
 	    case CODE_H17R1_STEPPER_MOVE :
 	    Steps=((uint32_t) cMessage[port - 1][shift] + (uint32_t) (cMessage[port - 1][1+shift] <<8) + (uint32_t) (cMessage[port - 1][2+shift]<<16) + (uint32_t) (cMessage[port - 1][3+shift] <<24));
 	    Direction=cMessage[port - 1][shift+5];
@@ -443,6 +443,7 @@ Module_Status Module_MessagingTask(uint16_t code,uint8_t port,uint8_t src,uint8_
 		default:
 			result =H17R1_ERR_UnknownMessage;
 			break;
+			*/
 	}
 	
 	return result;
@@ -451,18 +452,14 @@ Module_Status Module_MessagingTask(uint16_t code,uint8_t port,uint8_t src,uint8_
  */
 uint8_t GetPort(UART_HandleTypeDef *huart){
 
-	if(huart->Instance == USART4)
-		return P1;
-	else if(huart->Instance == USART2)
+	if(huart->Instance == USART2)
 		return P2;
 	else if(huart->Instance == USART3)
 		return P3;
-	else if(huart->Instance == USART1)
-		return P4;
 	else if(huart->Instance == USART5)
-		return P5;
+		return P4;
 	else if(huart->Instance == USART6)
-		return P6;
+		return P1;
 	
 	return 0;
 }
@@ -509,6 +506,8 @@ void RegisterModuleCLICommands(void){
  |								  APIs							          | 																 	|
 /* -----------------------------------------------------------------------
  */
+
+//**************API1*************************************************
 void StepperIcInit()
 {
 
@@ -527,24 +526,53 @@ void StepperIcInit()
 	Powerstep01_AttachErrorHandler(MyErrorHandler);
 
 }
+//**************API2*************************************************
 
 // StepperMove : the motor wil move depending on the number of steps
-void StepperMove( motorDir_t direction,  uint32_t n_step)
+Module_Status StepperMove( motorDir_t direction,  uint32_t n_step)
 {
-
+	Module_Status status = H17R1_OK;
+	if( direction != Backward && direction != Forward )
+		{
+			status = H17R1_ERR_WrongParams;
+			return status;
+		}
 	 Powerstep01_CmdMove(0, direction, n_step);
      Powerstep01_WaitWhileActive(0);
+     return status;
 }
+
+//**************API3*************************************************
 
 // StepperRun : the motor will run with the given speed unti it is stopped using StepperStop function
 //  speed in 2^-28 step/tick
-void StepperRun( motorDir_t direction, uint32_t speed)
+Module_Status StepperRun( motorDir_t direction, uint32_t speed)
 {
+	Module_Status status = H17R1_OK;
+	if( direction != Backward && direction != Forward )
+			{
+				status = H17R1_ERR_WrongParams;
+				return status;
+			}
+	if( speed > 15610 )
+				{
+					status = H17R1_ERR_WrongParams;
+					return status;
+				}
+
 	 Powerstep01_CmdRun(0, direction, speed);
+	 return status;
 }
 
-void StepperStop(StoppingMethod mode )
+//**************API4*************************************************
+Module_Status StepperStop(StoppingMethod mode )
 {
+	Module_Status status = H17R1_OK;
+	if( mode != SoftStop && mode != HardStop && mode != Clock  )
+				{
+					status = H17R1_ERR_WrongParams;
+					return status;
+				}
 
 	switch(mode)
 	{
@@ -561,6 +589,7 @@ void StepperStop(StoppingMethod mode )
 	   default:
 		break;
 	}
+	return status;
 }
 
 

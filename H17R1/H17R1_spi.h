@@ -46,6 +46,7 @@
 #define STCK_Pin GPIO_PIN_7
 #define STCK_GPIO_Port GPIOB
 void MX_SPI1_Init(void);
+void Error_Handler(void);
 
 
 #ifdef __cplusplus

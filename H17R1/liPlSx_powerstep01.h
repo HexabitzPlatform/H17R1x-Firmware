@@ -946,8 +946,6 @@ void Powerstep01_StartStepClock(uint16_t newFreq); //Start the step clock by usi
 void Powerstep01_StopStepClock(void);              //Stop the PWM uses for the step clock
 void Powerstep01_WaitForAllDevicesNotBusy(void);
 void Powerstep01_WaitWhileActive(uint8_t deviceId);
-void Powerstep01_FlagInterruptHandler(void);
-void Powerstep01_BusyInterruptHandler(void);
 
 /**
  * @brief Functions to get and set parameters using digital or analog values
