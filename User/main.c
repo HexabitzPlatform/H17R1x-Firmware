@@ -28,17 +28,23 @@ int main(void){
 void UserTask(void *argument){
 	    int32_t pos=0;
 	    uint32_t readData;
-
-//StepperMove(Backward,10000);
-//StepperStop(SoftStop);
-	 //   StepperRun( Backward, 3000);
-
-	 //   StepperStop(SoftStop);
-	    StepperRun(Forward, 6000);
+/*
+StepperMove(0,10000);
+StepperStop(SoftStop);
+	   StepperRun( Backward, 3000);
+HAL_Delay(5000);
 	    StepperStop(SoftStop);
+	    HAL_Delay(5000);
+	    StepperRun(1, 6000);
+	    HAL_Delay(5000);
+	    StepperStop(SoftStop);
+	    HAL_Delay(5000);
 	    StepperRun(Forward, 9000);
+	    HAL_Delay(5000);
 	    StepperStop(HardStop);
-
+	    HAL_Delay(5000);
+	    */
+/*
 	    //the functions below might be needed
 	    Powerstep01_CmdStepClock(0, Forward);
 	    Powerstep01_StartStepClock(333);
@@ -49,7 +55,7 @@ void UserTask(void *argument){
 	    StepperStop(Clock);
 	    Powerstep01_StartStepClock(333*9);
 	    StepperStop(Clock);
-
+*/
 	//	    Powerstep01_CmdGoHome(0);
 	//	    pos = Powerstep01_GetPosition(0);
 	//	    Powerstep01_CmdMove(0, Backward, 16000);

@@ -115,6 +115,13 @@ typedef enum {
 } StoppingMethod;
 
 typedef enum {
+	CURRENT_MODE =0,
+	VOLTAGE_MODE
+} Module_modes;
+
+
+
+typedef enum {
 	H17R1_OK =0,
 	H17R1_ERR_UnknownMessage,
 	H17R1_ERR_WrongParams,
@@ -161,6 +168,11 @@ extern Module_Status StepperStop(StoppingMethod mode );
  |								Commands							      |															 	|
 /* -----------------------------------------------------------------------
  */
+extern const CLI_Command_Definition_t CLI_StepperMoveCommandDefinition;
+extern const CLI_Command_Definition_t CLI_StepperRunCommandDefinition;
+extern const CLI_Command_Definition_t CLI_StepperStopCommandDefinition;
+
+
 
 
 #endif /* H17R1_H */

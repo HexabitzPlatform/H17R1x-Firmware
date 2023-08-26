@@ -29,6 +29,8 @@ UART_HandleTypeDef huart6;
 /* Exported variables */
 extern FLASH_ProcessTypeDef pFlash;
 extern uint8_t numOfRecordedSnippets;
+Module_modes steppermode = VOLTAGE_MODE;
+
 void MX_GPIO_Init(void);
 extern void MX_SPI1_Init(void);
 extern void MX_TIM4_Init(void);
@@ -152,7 +154,45 @@ void ExecuteMonitor(void);
 /* Create CLI commands --------------------------------------------------------*/
 
 /*-----------------------------------------------------------*/
+/* Create CLI commands --------------------------------------------------------*/
+portBASE_TYPE CLI_StepperMoveCommand( int8_t *pcWriteBuffer, size_t xWriteBufferLen, const int8_t *pcCommandString );
 
+portBASE_TYPE CLI_StepperRunCommand( int8_t *pcWriteBuffer, size_t xWriteBufferLen, const int8_t *pcCommandString );
+portBASE_TYPE CLI_StepperStopCommand( int8_t *pcWriteBuffer, size_t xWriteBufferLen, const int8_t *pcCommandString );
+/*-----------------------------------------------------------*/
+
+/* CLI command structure : StepperMoveCommand */
+const CLI_Command_Definition_t CLI_StepperMoveCommandDefinition =
+{
+	( const int8_t * ) "steppermove", /* The command string to type. */
+	( const int8_t * ) "steppermove:\r\nParameters required to execute a motor_Direction:0,1  , Number of Steps \r\n\r\n",
+	CLI_StepperMoveCommand, /* The function to run. */
+	2 /* two parameters are expected. */
+};
+
+/* CLI command structure : StepperRunCommand */
+const CLI_Command_Definition_t CLI_StepperRunCommandDefinition =
+{
+	( const int8_t * ) "stepperrun", /* The command string to type. */
+	( const int8_t * ) "stepperrun:\r\nParameters required to execute a motor_Direction:0,1  , speed \r\n\r\n",
+	CLI_StepperRunCommand, /* The function to run. */
+	2 /* two parameters are expected. */
+};
+
+/* CLI command structure : StepperStopCommand */
+const CLI_Command_Definition_t CLI_StepperStopCommandDefinition =
+{
+	( const int8_t * ) "stepperstop", /* The command string to type. */
+	( const int8_t * ) "stepperstop:\r\nParameters required to execute a stopMode:0,1,2   \r\n\r\n",
+	CLI_StepperStopCommand, /* The function to run. */
+	1 /* two parameters are expected. */
+};
+
+
+
+
+
+//***********************************************************************
 /* -----------------------------------------------------------------------
  |												 Private Functions	 														|
  ----------------------------------------------------------------------- 
@@ -469,6 +509,14 @@ uint8_t GetPort(UART_HandleTypeDef *huart){
 /* --- Register this module CLI Commands
  */
 void RegisterModuleCLICommands(void){
+	 FreeRTOS_CLIRegisterCommand(&CLI_StepperMoveCommandDefinition);
+	 FreeRTOS_CLIRegisterCommand(&CLI_StepperRunCommandDefinition);
+	 FreeRTOS_CLIRegisterCommand(&CLI_StepperStopCommandDefinition);
+
+
+
+
+
 
 }
 
@@ -510,7 +558,6 @@ void RegisterModuleCLICommands(void){
 //**************API1*************************************************
 void StepperIcInit()
 {
-
 	/* Set the Powerstep01 library to use 1 device */
 	Powerstep01_SetNbDevices(1);
 
@@ -532,7 +579,7 @@ void StepperIcInit()
 Module_Status StepperMove( motorDir_t direction,  uint32_t n_step)
 {
 	Module_Status status = H17R1_OK;
-	if( direction != Backward && direction != Forward )
+	if( direction != 0 && direction != 1 )
 		{
 			status = H17R1_ERR_WrongParams;
 			return status;
@@ -600,6 +647,115 @@ Module_Status StepperStop(StoppingMethod mode )
  |								Commands							      |
    -----------------------------------------------------------------------
  */
+/*-----------------------------------------------------------*/
+portBASE_TYPE CLI_StepperMoveCommand( int8_t *pcWriteBuffer, size_t xWriteBufferLen, const int8_t *pcCommandString ){
+	Module_Status status = H17R1_OK;
+	uint32_t steps;
+		uint8_t direction;
+	static int8_t *pcParameterString1;
+	static int8_t *pcParameterString2;
+	portBASE_TYPE xParameterStringLength1 =0;
+	portBASE_TYPE xParameterStringLength2 =0;
+
+	static const int8_t *pcOKMessage=(int8_t* )"stepper is moving:\r\n %d  \n\r";
+	static const int8_t *pcWrongParamsMessage =(int8_t* )"Wrong Params!\n\r";
+	static const int8_t *pcWrongRangeMessage =(int8_t* )"Direction is not true!\n\r";
+
+
+	(void )xWriteBufferLen;
+	configASSERT(pcWriteBuffer);
+
+	pcParameterString1 =(int8_t* )FreeRTOS_CLIGetParameter(pcCommandString, 1, &xParameterStringLength1 );
+	direction =(uint8_t )atol((char* )pcParameterString1);
+
+	pcParameterString2 =(int8_t* )FreeRTOS_CLIGetParameter(pcCommandString, 2, &xParameterStringLength2 );
+	steps =(uint32_t )atol((char* )pcParameterString2);
+    status=StepperMove(direction,steps);
+
+	if(status == H17R1_OK)
+	{
+		sprintf((char* )pcWriteBuffer,(char* )pcOKMessage,steps);
+
+	}
+
+	else if(status == H17R1_ERR_WrongParams)
+		strcpy((char* )pcWriteBuffer,(char* )pcWrongParamsMessage);
+
+
+	return pdFALSE;
+}
+
+
+/* ----------------------------------------------------------------------------*/
+/*-----------------------------------------------------------*/
+portBASE_TYPE CLI_StepperRunCommand( int8_t *pcWriteBuffer, size_t xWriteBufferLen, const int8_t *pcCommandString ){
+	Module_Status status = H17R1_OK;
+	uint32_t speed;
+		uint8_t direction;
+	static int8_t *pcParameterString1;
+	static int8_t *pcParameterString2;
+	portBASE_TYPE xParameterStringLength1 =0;
+	portBASE_TYPE xParameterStringLength2 =0;
+
+	static const int8_t *pcOKMessage=(int8_t* )"stepper is moving:\r\n %d  \n\r";
+	static const int8_t *pcWrongParamsMessage =(int8_t* )"Wrong Params!\n\r";
+	static const int8_t *pcWrongRangeMessage =(int8_t* )"Direction is not true!\n\r";
+
+
+	(void )xWriteBufferLen;
+	configASSERT(pcWriteBuffer);
+
+	pcParameterString1 =(int8_t* )FreeRTOS_CLIGetParameter(pcCommandString, 1, &xParameterStringLength1 );
+	direction =(uint8_t )atol((char* )pcParameterString1);
+
+	pcParameterString2 =(int8_t* )FreeRTOS_CLIGetParameter(pcCommandString, 2, &xParameterStringLength2 );
+	speed =(uint32_t )atol((char* )pcParameterString2);
+    status=StepperRun(direction,speed);
+
+	if(status == H17R1_OK)
+	{
+		sprintf((char* )pcWriteBuffer,(char* )pcOKMessage,speed);
+
+	}
+
+	else if(status == H17R1_ERR_WrongParams)
+		strcpy((char* )pcWriteBuffer,(char* )pcWrongParamsMessage);
+
+
+	return pdFALSE;
+}
+/*-----------------------------------------------------------*/
+portBASE_TYPE CLI_StepperStopCommand( int8_t *pcWriteBuffer, size_t xWriteBufferLen, const int8_t *pcCommandString ){
+	Module_Status status = H17R1_OK;
+    uint8_t stopmode;
+	static int8_t *pcParameterString1;
+	portBASE_TYPE xParameterStringLength1 =0;
+	static const int8_t *pcOKMessage=(int8_t* )"stepper is stop:\r\n %d  \n\r";
+	static const int8_t *pcWrongParamsMessage =(int8_t* )"Wrong Params!\n\r";
+	static const int8_t *pcWrongRangeMessage =(int8_t* )"Direction is not true!\n\r";
+
+
+	(void )xWriteBufferLen;
+	configASSERT(pcWriteBuffer);
+
+	pcParameterString1 =(int8_t* )FreeRTOS_CLIGetParameter(pcCommandString, 1, &xParameterStringLength1 );
+	stopmode =(uint8_t )atol((char* )pcParameterString1);
+
+	 status=StepperStop(stopmode);
+
+	if(status == H17R1_OK)
+	{
+		sprintf((char* )pcWriteBuffer,(char* )pcOKMessage,stopmode);
+
+	}
+
+	else if(status == H17R1_ERR_WrongParams)
+		strcpy((char* )pcWriteBuffer,(char* )pcWrongParamsMessage);
+
+
+	return pdFALSE;
+}
+
 
 
 
