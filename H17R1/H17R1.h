@@ -114,12 +114,6 @@ typedef enum {
 	Clock
 } StoppingMethod;
 
-typedef enum {
-	CURRENT_MODE =0,
-	VOLTAGE_MODE
-} Module_modes;
-
-
 
 typedef enum {
 	H17R1_OK =0,
@@ -159,7 +153,7 @@ extern void Error_Handler(void);
 void SetupPortForRemoteBootloaderUpdate(uint8_t port);
 void remoteBootloaderUpdate(uint8_t src,uint8_t dst,uint8_t inport,uint8_t outport);
 
-extern void StepperIcInit();
+extern Module_Status StepperIcInit(int8_t steppermode,float Accelaration,float Declaration, float MaxSpeed,float  Overcurrent );
 extern Module_Status StepperMove( motorDir_t direction,  uint32_t n_step);
 extern Module_Status StepperRun( motorDir_t direction, uint32_t speed);
 extern Module_Status StepperStop(StoppingMethod mode );
@@ -168,6 +162,7 @@ extern Module_Status StepperStop(StoppingMethod mode );
  |								Commands							      |															 	|
 /* -----------------------------------------------------------------------
  */
+extern const CLI_Command_Definition_t CLI_StepperIcInitCommandDefinition;
 extern const CLI_Command_Definition_t CLI_StepperMoveCommandDefinition;
 extern const CLI_Command_Definition_t CLI_StepperRunCommandDefinition;
 extern const CLI_Command_Definition_t CLI_StepperStopCommandDefinition;

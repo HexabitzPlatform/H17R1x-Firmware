@@ -28,6 +28,9 @@ int main(void){
 void UserTask(void *argument){
 	    int32_t pos=0;
 	    uint32_t readData;
+	   // StepperIcInit(1,582,582, 488,281.25 );
+
+	    StepperMove(0,10000);
 /*
 StepperMove(0,10000);
 StepperStop(SoftStop);
