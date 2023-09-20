@@ -381,20 +381,42 @@ void Module_Peripheral_Init(void){
 Module_Status Module_MessagingTask(uint16_t code,uint8_t port,uint8_t src,uint8_t dst,uint8_t shift){
 	Module_Status result =H17R1_OK;
 	motorDir_t Direction=0;
+	StoppingMethod mode=0 ;
 	uint32_t Steps=0;
 	uint32_t Speed=0;
-
+int8_t steppermode;
+float Accelaration,Declaration,MaxSpeed,Overcurrent;
 	switch(code){
-	/*
-	    case CODE_H17R1_STEPPER_MOVE :
+
+	case CODE_H17R1_StepperIcInit:
+		steppermode=(int8_t )cMessage[port - 1][shift];
+		Accelaration=(float )cMessage[port - 1][shift+1];
+		Declaration=(float )cMessage[port - 1][shift+2];
+		MaxSpeed=(float )cMessage[port - 1][shift+3];
+		Overcurrent=(float )cMessage[port - 1][shift+4];
+	 StepperIcInit( steppermode, Accelaration, Declaration,  MaxSpeed,  Overcurrent );
+	 break;
+     case CODE_H17R1_STEPPER_MOVE :
+    	 Direction=cMessage[port - 1][shift+5];
 	    Steps=((uint32_t) cMessage[port - 1][shift] + (uint32_t) (cMessage[port - 1][1+shift] <<8) + (uint32_t) (cMessage[port - 1][2+shift]<<16) + (uint32_t) (cMessage[port - 1][3+shift] <<24));
-	    Direction=cMessage[port - 1][shift+5];
 	    StepperMove(Direction,Steps);
 	    break;
+	    //************
+     case CODE_H17R1_StepperRun :
+         	 Direction=cMessage[port - 1][shift+5];
+            	 Speed=(uint32_t )cMessage[port - 1][shift+1];
+         	 StepperRun(  Direction,  Speed);
+           	    break;
+    	 //*************
+     case CODE_H17R1_StepperStop :
+     mode=cMessage[port - 1][shift+5];
+     StepperStop( mode );
+      break;
+         //*************
 		default:
 			result =H17R1_ERR_UnknownMessage;
 			break;
-			*/
+
 	}
 	
 	return result;
