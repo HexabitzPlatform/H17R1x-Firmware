@@ -398,13 +398,17 @@ float Accelaration,Declaration,MaxSpeed,Overcurrent;
 	 break;
      case CODE_H17R1_STEPPER_MOVE :
     	 Direction=cMessage[port - 1][shift+5];
-	    Steps=((uint32_t) cMessage[port - 1][shift] + (uint32_t) (cMessage[port - 1][1+shift] <<8) + (uint32_t) (cMessage[port - 1][2+shift]<<16) + (uint32_t) (cMessage[port - 1][3+shift] <<24));
+    	 Steps =((uint32_t )cMessage[port - 1][1 + shift] ) + ((uint32_t )cMessage[port - 1][2 + shift] << 8) + ((uint32_t )cMessage[port - 1][3 + shift] << 16) + ((uint32_t )cMessage[port - 1][4 + shift] << 24);
+
+    	 	    //Steps=((uint32_t) cMessage[port - 1][shift] + (uint32_t) (cMessage[port - 1][1+shift] <<8) + (uint32_t) (cMessage[port - 1][2+shift]<<16) + (uint32_t) (cMessage[port - 1][3+shift] <<24));
 	    StepperMove(Direction,Steps);
 	    break;
 	    //************
      case CODE_H17R1_StepperRun :
          	 Direction=cMessage[port - 1][shift+5];
-            	 Speed=(uint32_t )cMessage[port - 1][shift+1];
+         	Speed =((uint32_t )cMessage[port - 1][1 + shift] ) + ((uint32_t )cMessage[port - 1][2 + shift] << 8) + ((uint32_t )cMessage[port - 1][3 + shift] << 16) + ((uint32_t )cMessage[port - 1][4 + shift] << 24);
+
+            	// Speed=(uint32_t )cMessage[port - 1][shift+1];
          	 StepperRun(  Direction,  Speed);
            	    break;
     	 //*************
