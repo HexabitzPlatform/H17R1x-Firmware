@@ -34,7 +34,7 @@ extern uint8_t numOfRecordedSnippets;
 //int8_t steppermode = 0;// Default Mode is current mode
 //default parameters is Current mode parameters
 /* Initialization parameters for current mode */
-float Accelaration_current=5000 , Declaration_current=1000 , MaxSpeed_current=15610 ,Overcurrent_current=48;
+uint32_t Accelaration_current=5000 , Declaration_current=1000 , MaxSpeed_current=15610 ,Overcurrent_current=48;
 /* Initialization parameters for voltage mode */
 float Accelaration_voltage=582 , Declaration_voltage=582 , MaxSpeed_voltage=488 ,Overcurrent_voltage= 281.25;
 void MX_GPIO_Init(void);
@@ -384,36 +384,37 @@ Module_Status Module_MessagingTask(uint16_t code,uint8_t port,uint8_t src,uint8_
 	StoppingMethod mode=0 ;
 	uint32_t Steps=0;
 	uint32_t Speed=0;
+	uint32_t  Accelaration;
+	 uint32_t  Declaration;
+	uint32_t  MaxSpeed;
+	uint32_t  Overcurrent;
+
 int8_t steppermode;
 float Accelaration,Declaration,MaxSpeed,Overcurrent;
 	switch(code){
 
 	case CODE_H17R1_StepperIcInit:
-		steppermode=(int8_t )cMessage[port - 1][shift];
-		Accelaration=(float )cMessage[port - 1][shift+1];
-		Declaration=(float )cMessage[port - 1][shift+2];
-		MaxSpeed=(float )cMessage[port - 1][shift+3];
-		Overcurrent=(float )cMessage[port - 1][shift+4];
+		steppermode=cMessage[port - 1][shift];
+		Accelaration =((uint32_t )cMessage[port - 1][1 + shift] ) + ((uint32_t )cMessage[port - 1][2 + shift] << 8) + ((uint32_t )cMessage[port - 1][3 + shift] << 16) + ((uint32_t )cMessage[port - 1][4 + shift] << 24);
+		Declaration =((uint32_t )cMessage[port - 1][5 + shift] ) + ((uint32_t )cMessage[port - 1][6 + shift] << 8) + ((uint32_t )cMessage[port - 1][7 + shift] << 16) + ((uint32_t )cMessage[port - 1][8 + shift] << 24);
+		MaxSpeed =((uint32_t )cMessage[port - 1][9 + shift] ) + ((uint32_t )cMessage[port - 1][10 + shift] << 8) + ((uint32_t )cMessage[port - 1][11 + shift] << 16) + ((uint32_t )cMessage[port - 1][12 + shift] << 24);
+		Overcurrent =((uint32_t )cMessage[port - 1][13 + shift] ) + ((uint32_t )cMessage[port - 1][14 + shift] << 8) + ((uint32_t )cMessage[port - 1][15 + shift] << 16) + ((uint32_t )cMessage[port - 1][16 + shift] << 24);
 	 StepperIcInit( steppermode, Accelaration, Declaration,  MaxSpeed,  Overcurrent );
 	 break;
      case CODE_H17R1_STEPPER_MOVE :
-    	 Direction=cMessage[port - 1][shift+5];
+    	 Direction=cMessage[port - 1][shift];
     	 Steps =((uint32_t )cMessage[port - 1][1 + shift] ) + ((uint32_t )cMessage[port - 1][2 + shift] << 8) + ((uint32_t )cMessage[port - 1][3 + shift] << 16) + ((uint32_t )cMessage[port - 1][4 + shift] << 24);
-
-    	 	    //Steps=((uint32_t) cMessage[port - 1][shift] + (uint32_t) (cMessage[port - 1][1+shift] <<8) + (uint32_t) (cMessage[port - 1][2+shift]<<16) + (uint32_t) (cMessage[port - 1][3+shift] <<24));
-	    StepperMove(Direction,Steps);
+         StepperMove(Direction,Steps);
 	    break;
 	    //************
      case CODE_H17R1_StepperRun :
-         	 Direction=cMessage[port - 1][shift+5];
+         	 Direction=cMessage[port - 1][shift];
          	Speed =((uint32_t )cMessage[port - 1][1 + shift] ) + ((uint32_t )cMessage[port - 1][2 + shift] << 8) + ((uint32_t )cMessage[port - 1][3 + shift] << 16) + ((uint32_t )cMessage[port - 1][4 + shift] << 24);
-
-            	// Speed=(uint32_t )cMessage[port - 1][shift+1];
-         	 StepperRun(  Direction,  Speed);
-           	    break;
+            StepperRun(  Direction,  Speed);
+         break;
     	 //*************
      case CODE_H17R1_StepperStop :
-     mode=cMessage[port - 1][shift+5];
+     mode=cMessage[port - 1][shift];
      StepperStop( mode );
       break;
          //*************
