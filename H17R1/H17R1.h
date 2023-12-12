@@ -44,7 +44,6 @@
 #define _P4 
 
 /* Define available USARTs */
-
 #define _Usart2 1
 #define _Usart3 1
 #define _Usart5 1
@@ -57,8 +56,6 @@
 #define P2uart &huart2
 #define P3uart &huart3
 #define P4uart &huart5
-
-
 
 /* Port Definitions */
 
@@ -73,7 +70,6 @@
 #define	USART3_TX_PORT		GPIOB
 #define	USART3_RX_PORT		GPIOB
 #define	USART3_AF			GPIO_AF4_USART3
-
 
 
 #define	USART5_TX_PIN		GPIO_PIN_3
