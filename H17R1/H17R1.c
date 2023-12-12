@@ -390,7 +390,7 @@ Module_Status Module_MessagingTask(uint16_t code,uint8_t port,uint8_t src,uint8_
 	uint32_t  Overcurrent;
 
 int8_t steppermode;
-float Accelaration,Declaration,MaxSpeed,Overcurrent;
+//float Accelaration,Declaration,MaxSpeed,Overcurrent;
 	switch(code){
 
 	case CODE_H17R1_StepperIcInit:
