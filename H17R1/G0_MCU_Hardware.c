@@ -1,24 +1,12 @@
-/**
-  ******************************************************************************
-  * @file    G0_MCU_Hardware.c
-  * @author  Ibrahim Zaeiter
-  * @version V1.6.0
-  * @date    Mars 27th, 2023
-  * @brief   BSP driver for x-nucleo-ihm03a1 Nucleo extension board
+/*
+ BitzOS (BOS) V0.3.0 - Copyright (C) 2017-2024 Hexabitz
+ All rights reserved
+
+ File Name     : H17R1_spi.c
+ Description   : BSP driver for x-nucleo-ihm03a1 Nucleo extension board
   *  (based on powerSTEP01)
-  ******************************************************************************
-  * @attention
   *
-  * <h2><center>&copy; Copyright (c) 2020 STMicroelectronics.
-  * All rights reserved.</center></h2>
-  *
-  * This software component is licensed by ST under BSD 3-Clause license,
-  * the "License"; You may not use this file except in compliance with the
-  * License. You may obtain a copy of the License at:
-  *                        opensource.org/licenses/BSD-3-Clause
-  *
-  ******************************************************************************
-  */
+ */
 
 /* Includes ------------------------------------------------------------------*/
 

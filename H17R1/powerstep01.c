@@ -1,23 +1,10 @@
-/**************************************************************************//**
-  * @file    powerstep01.c 
-  * @author  IPC Rennes
-  * @version V1.6.0
-  * @date    June 4th, 2018
-  * @brief   Powerstep01 motor driver (Microstepping controller with power MOSFETs)
-  * @note    (C) COPYRIGHT 2016 STMicroelectronics
-  ******************************************************************************
-  * @attention
-  *
-  * <h2><center>&copy; Copyright (c) 2020 STMicroelectronics.
-  * All rights reserved.</center></h2>
-  *
-  * This software component is licensed by ST under BSD 3-Clause license,
-  * the "License"; You may not use this file except in compliance with the
-  * License. You may obtain a copy of the License at:
-  *                        opensource.org/licenses/BSD-3-Clause
-  *
-  ******************************************************************************
-  */
+/*
+ BitzOS (BOS) V0.3.0 - Copyright (C) 2017-2024 Hexabitz
+ All rights reserved
+
+ File Name     : powerstep01.c
+ Description   : Powerstep01 motor driver (Microstepping controller with power MOSFETs)
+ */
 
 #include "powerstep01.h"
 
