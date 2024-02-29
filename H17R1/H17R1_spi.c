@@ -1,11 +1,15 @@
-/**
-  ******************************************************************************
-  * @file    G0_MCU_Hardware.c
-  * @author  Ibrahim Zaeiter
-  * @version V1.6.0
-  * @date    Mars 27th, 2023
-  * @brief   BSP driver for x-nucleo-ihm03a1 Nucleo extension board 
+/*
+ BitzOS (BOS) V0.3.1 - Copyright (C) 2017-2024 Hexabitz
+ All rights reserved
+
+ File Name     : H17R1_spi.ؤ
+ Description   : BSP driver for x-nucleo-ihm03a1 Nucleo extension board 
   *  (based on powerSTEP01)
+
+ */
+
+
+/**
   ******************************************************************************
   * @attention
   *

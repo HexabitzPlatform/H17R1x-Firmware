@@ -1,0 +1,13 @@
+G0_MCU_Hardware.c:58:6:Powerstep01_Board_Delay	1
+G0_MCU_Hardware.c:69:6:Powerstep01_Board_DisableIrq	1
+G0_MCU_Hardware.c:78:6:Powerstep01_Board_EnableIrq	1
+G0_MCU_Hardware.c:89:6:Powerstep01_Board_StartStepClock	1
+G0_MCU_Hardware.c:102:6:Powerstep01_Board_StopStepClock	1
+G0_MCU_Hardware.c:111:6:Powerstep01_Board_ReleaseReset	1
+G0_MCU_Hardware.c:120:6:Powerstep01_Board_Reset	1
+G0_MCU_Hardware.c:132:9:Powerstep01_Board_SpiWriteBytes	3
+G0_MCU_Hardware.c:156:10:Powerstep01_Board_BUSY_PIN_GetState	1
+G0_MCU_Hardware.c:165:10:Powerstep01_Board_FLAG_PIN_GetState	1
+G0_MCU_Hardware.c:170:6:MX_SPI1_Init	2
+G0_MCU_Hardware.c:210:6:HAL_SPI_MspInit	2
+G0_MCU_Hardware.c:255:6:HAL_SPI_MspDeInit	2
