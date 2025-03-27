@@ -40,8 +40,7 @@ float Accelaration_voltage=582 , Declaration_voltage=582 , MaxSpeed_voltage=488 
 void MX_GPIO_Init(void);
 extern void MX_SPI1_Init(void);
 extern void MX_TIM4_Init(void);
-/* Module exported parameters ------------------------------------------------*/
-module_param_t modParam[NUM_MODULE_PARAMS] ={{.paramPtr = NULL, .paramFormat =FMT_FLOAT, .paramName =""}};
+module_param_t modParam[NUM_MODULE_PARAMS] ={0};
 
 /* Private variables ---------------------------------------------------------*/
 extern void MyBusyInterruptHandler(void);
@@ -416,6 +415,28 @@ void Module_Peripheral_Init(void){
 
 	/* Create module special task (if needed) */
 }
+
+/***************************************************************************/
+/* This functions is useful only for input (sensors) modules.
+ * @brief: Samples a module parameter value based on parameter index.
+ * @param paramIndex: Index of the parameter (1-based index).
+ * @param value: Pointer to store the sampled float value.
+ * @retval: Module_Status indicating success or failure.
+ */
+Module_Status GetModuleParameter(uint8_t paramIndex,float *value){
+	Module_Status status =BOS_OK;
+
+	switch(paramIndex){
+
+		/* Invalid parameter index */
+		default:
+			status =BOS_ERR_WrongParam;
+			break;
+	}
+
+	return status;
+}
+
 
 /*-----------------------------------------------------------*/
 /* --- H17R1 message processing task.
