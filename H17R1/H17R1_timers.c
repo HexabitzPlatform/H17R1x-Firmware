@@ -25,7 +25,7 @@ TIM_HandleTypeDef htim16; /* micro-second delay counter */
 TIM_HandleTypeDef htim17; /* milli-second delay counter */
 IWDG_HandleTypeDef hiwdg;
 
-TIM_HandleTypeDef htim4;
+extern TIM_HandleTypeDef htim4;
 
 /* Exported Variables Prototypes *******************************************/
 void HAL_TIM_MspPostInit(TIM_HandleTypeDef *htim);
