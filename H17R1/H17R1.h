@@ -21,6 +21,7 @@
 #include "BOS.h"
 #include "H17R1_MemoryMap.h"
 #include "H17R1_uart.h"
+#include "H17R1_spi.h"
 #include "H17R1_gpio.h"
 #include "H17R1_dma.h"
 #include "H17R1_inputs.h"
@@ -29,36 +30,31 @@
 
 /* Exported definitions -------------------------------------------------------*/
 
-#define	modulePN		_H17R1
+#define	MODULE_PN		_H17R1
 
-
-/* Port-related definitions */
-#define	NumOfPorts			4
-
-#define P_PROG 				P2						/* ST factory bootloader UART */
+/* Port-related Definitions */
+#define	NUM_OF_PORTS	4
+#define P_PROG 			P2		/* ST factory bootloader UART */
 
 /* Define available ports */
-#define _P1 
-#define _P2 
-#define _P3 
-#define _P4 
+#define _P1
+#define _P2
+#define _P3
+#define _P4
 
 /* Define available USARTs */
-#define _Usart2 1
-#define _Usart3 1
-#define _Usart5 1
-#define _Usart6	1
-
+#define _USART2
+#define _USART3
+#define _USART5
+#define _USART6
 
 /* Port-UART mapping */
-
-#define P1uart &huart6
-#define P2uart &huart2
-#define P3uart &huart3
-#define P4uart &huart5
+#define UART_P1 &huart6
+#define UART_P2 &huart2
+#define UART_P3 &huart3
+#define UART_P4 &huart5
 
 /* Port Definitions */
-
 #define	USART2_TX_PIN		GPIO_PIN_2
 #define	USART2_RX_PIN		GPIO_PIN_3
 #define	USART2_TX_PORT		GPIOA
@@ -99,6 +95,12 @@
 #define NUM_MODULE_PARAMS						1
 
 /* Module EEPROM Variables */
+
+#define TIMER_PRESCALER (1024)
+
+
+/// SPI Maximum Timeout values for flags waiting loops
+#define SPIx_TIMEOUT_MAX                      ((uint32_t)0x1000)
 
 // Module Addressing Space 500 - 599
 #define _EE_MODULE							500		

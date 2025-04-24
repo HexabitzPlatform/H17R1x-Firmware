@@ -49,7 +49,144 @@ extern void MyErrorHandler(uint16_t error);
 union powerstep01_Init_u initDeviceParameters;
 
 /* Private function prototypes -----------------------------------------------*/
-void ExecuteMonitor(void);
+
+
+extern void StartMilliDelay(uint16_t Delay);
+void Powerstep01_Board_Delay(uint32_t delay);         //Delay of the requested number of milliseconds
+void Powerstep01_Board_EnableIrq(void);               //Disable Irq
+void Powerstep01_Board_DisableIrq(void);              //Enable Irq
+void Powerstep01_Board_StartStepClock(uint16_t newFreq); //Start the step clock by using the given frequency
+void Powerstep01_Board_StopStepClock(void);              //Stop the PWM uses for the step clock
+void Powerstep01_Board_ReleaseReset(void);               //Reset the powerSTEP01 reset pin
+void Powerstep01_Board_Reset(void);                      //Set the powerSTEP01 reset pin
+uint8_t Powerstep01_Board_SpiWriteBytes(uint8_t *pByteToTransmit, uint8_t *pReceivedByte, uint8_t nbDevices); //Write bytes to the powerSTEP01s via SPI
+uint32_t Powerstep01_Board_BUSY_PIN_GetState(void); //Returns the BUSY pin state
+uint32_t Powerstep01_Board_FLAG_PIN_GetState(void); //Returns the FLAG pin state
+
+/***************************************************************************/
+/* Configure SPI ***********************************************************/
+/***************************************************************************/
+
+
+
+/******************************************************//**
+ * @brief This function provides an accurate delay in milliseconds
+ * @param[in] delay  time length in milliseconds
+  * @retval None
+ **********************************************************/
+void Powerstep01_Board_Delay(uint32_t delay)
+{
+
+   StartMilliDelay(1);
+
+}
+
+/******************************************************//**
+ * @brief This function disable the interruptions
+ * @retval None
+ **********************************************************/
+void Powerstep01_Board_DisableIrq(void)
+{
+  __disable_irq();
+}
+
+/******************************************************//**
+ * @brief This function enable the interruptions
+ * @retval None
+ **********************************************************/
+void Powerstep01_Board_EnableIrq(void)
+{
+  __enable_irq();
+}
+
+/******************************************************//**
+ * @brief  Start the step clock by using the given frequency
+ * @param[in] newFreq in Hz of the step clock
+ * @retval None
+ * @note The frequency is directly the current speed of the device
+ **********************************************************/
+void Powerstep01_Board_StartStepClock(uint16_t newFreq)
+{
+  uint32_t sysFreq = HAL_RCC_GetSysClockFreq();
+  uint32_t period = (sysFreq/ (TIMER_PRESCALER * newFreq)) - 1;
+  __HAL_TIM_SetAutoreload(&htim4, period);
+  __HAL_TIM_SetCompare(&htim4, TIM_CHANNEL_2, period >> 1);
+  HAL_TIM_PWM_Start_IT(&htim4, TIM_CHANNEL_2);
+}
+
+/******************************************************//**
+ * @brief  Stops the PWM uses for the step clock
+ * @retval None
+ **********************************************************/
+void Powerstep01_Board_StopStepClock(void)
+{
+	HAL_TIM_PWM_Stop(&htim4, TIM_CHANNEL_2);
+}
+
+/******************************************************//**
+ * @brief  Releases the powerSTEP01 reset (pin set to High) of all devices
+ * @retval None
+ **********************************************************/
+void Powerstep01_Board_ReleaseReset(void)
+{
+  HAL_GPIO_WritePin(RESET_GPIO_Port, RESET_Pin, GPIO_PIN_SET);
+}
+
+/******************************************************//**
+ * @brief  Resets the powerSTEP01 (reset pin set to low) of all devices
+ * @retval None
+ **********************************************************/
+void Powerstep01_Board_Reset(void)
+{
+  HAL_GPIO_WritePin(RESET_GPIO_Port, RESET_Pin, GPIO_PIN_RESET);
+}
+
+/******************************************************//**
+ * @brief  Write and read SPI byte to the powerSTEP01
+ * @param[in] pByteToTransmit pointer to the byte to transmit
+ * @param[in] pReceivedByte pointer to the received byte
+ * @param[in] nbDevices Number of device in the SPI chain
+ * @retval HAL_OK if SPI transaction is OK, HAL_KO else
+ **********************************************************/
+uint8_t Powerstep01_Board_SpiWriteBytes(uint8_t *pByteToTransmit, uint8_t *pReceivedByte, uint8_t nbDevices)
+{
+  HAL_StatusTypeDef status;
+  uint32_t i;
+//  HAL_GPIO_WritePin(CS_GPIO_Port, CS_Pin, GPIO_PIN_RESET);
+  for (i = 0; i < nbDevices; i++)
+  {
+    status = HAL_SPI_TransmitReceive(&hspi1, pByteToTransmit, pReceivedByte, 1, SPIx_TIMEOUT_MAX);
+    if (status != HAL_OK)
+    {
+      break;
+    }
+    pByteToTransmit++;
+    pReceivedByte++;
+  }
+//  HAL_GPIO_WritePin(CS_GPIO_Port, CS_Pin, GPIO_PIN_SET);
+
+  return (uint8_t) status;
+}
+
+/******************************************************//**
+ * @brief  Returns the BUSY pin state.
+ * @retval The BUSY pin value.
+ **********************************************************/
+uint32_t Powerstep01_Board_BUSY_PIN_GetState(void)
+{
+  return HAL_GPIO_ReadPin(BUSY_GPIO_Port, BUSY_Pin);
+}
+
+/******************************************************//**
+ * @brief  Returns the FLAG pin state.
+ * @retval The FLAG pin value.
+ **********************************************************/
+uint32_t Powerstep01_Board_FLAG_PIN_GetState(void)
+{
+  return HAL_GPIO_ReadPin(FLAG_GPIO_Port, FLAG_Pin);
+}
+
+
 
 /* Create CLI commands --------------------------------------------------------*/
 
@@ -392,8 +529,13 @@ void Module_Peripheral_Init(void){
 	MX_USART3_UART_Init();
 	MX_USART5_UART_Init();
 	MX_USART6_UART_Init();
-    MX_GPIO_Init();
-	MX_SPI1_Init();
+
+//    MX_GPIO_Init();
+    StepperGPIOInit();
+
+    MX_SPI_Init();
+//	MX_SPI1_Init();
+
     MX_TIM4_Init();
     //default stepper mode is current mode
    StepperIcInit(0,Accelaration_current,Declaration_current, MaxSpeed_current,Overcurrent_current);	//Circulating DMA Channels ON All Module
@@ -541,6 +683,120 @@ void RegisterModuleCLICommands(void){
 
 
 /*-----------------------------------------------------------*/
+
+
+
+/***************************************************************************/
+/* Get the value of the status register via the command GET_STATUS */
+void MyFlagInterruptHandler(void) {
+	uint16_t statusRegister = Powerstep01_CmdGetStatus(0);
+
+	/* Check HIZ flag: if set, power brigdes are disabled */
+	if ((statusRegister & POWERSTEP01_STATUS_HIZ) == POWERSTEP01_STATUS_HIZ) {
+		// HIZ state
+	}
+
+	/* Check BUSY flag: if not set, a command is under execution */
+	if ((statusRegister & POWERSTEP01_STATUS_BUSY) == 0) {
+		// BUSY
+	}
+
+	/* Check SW_F flag: if not set, the SW input is opened */
+	if ((statusRegister & POWERSTEP01_STATUS_SW_F) == 0) {
+		// SW OPEN
+	} else {
+		// SW CLOSED
+	}
+
+	/* Check SW_EN bit */
+	if ((statusRegister & POWERSTEP01_STATUS_SW_EVN)
+			== POWERSTEP01_STATUS_SW_EVN) {
+		// switch turn_on event
+	}
+
+	/* Check direction bit */
+	if ((statusRegister & POWERSTEP01_STATUS_DIR) == 0) {
+		// BACKWARD
+	} else {
+		// FORWARD
+	}
+
+	if ((statusRegister & POWERSTEP01_STATUS_MOT_STATUS)
+			== POWERSTEP01_STATUS_MOT_STATUS_STOPPED) {
+		// MOTOR STOPPED
+	} else if ((statusRegister & POWERSTEP01_STATUS_MOT_STATUS)
+			== POWERSTEP01_STATUS_MOT_STATUS_ACCELERATION) {
+		// MOTOR ACCELERATION
+	} else if ((statusRegister & POWERSTEP01_STATUS_MOT_STATUS)
+			== POWERSTEP01_STATUS_MOT_STATUS_DECELERATION) {
+		// MOTOR DECELERATION
+	} else if ((statusRegister & POWERSTEP01_STATUS_MOT_STATUS)
+			== POWERSTEP01_STATUS_MOT_STATUS_CONST_SPD) {
+		// MOTOR RUNNING AT CONSTANT SPEED
+	}
+
+	/* Check Command Error flag: if set, the command received by SPI can't be */
+	/* performed. This occurs for instance when a move command is sent to the */
+	/* Powerstep01 while it is already running */
+	if ((statusRegister & POWERSTEP01_STATUS_CMD_ERROR)
+			== POWERSTEP01_STATUS_CMD_ERROR) {
+		// Command Error
+	}
+
+	/* Check Step mode clock flag: if set, the device is working in step clock mode */
+	if ((statusRegister & POWERSTEP01_STATUS_STCK_MOD)
+			== POWERSTEP01_STATUS_STCK_MOD) {
+		//Step clock mode enabled
+	}
+
+	/* Check UVLO flag: if not set, there is an undervoltage lock-out */
+	if ((statusRegister & POWERSTEP01_STATUS_UVLO) == 0) {
+		//undervoltage lock-out
+	}
+
+	/* Check UVLO ADC flag: if not set, there is an ADC undervoltage lock-out */
+	if ((statusRegister & POWERSTEP01_STATUS_UVLO_ADC) == 0) {
+		//ADC undervoltage lock-out
+	}
+
+	/* Check thermal STATUS flags: if  set, the thermal status is not normal */
+	if ((statusRegister & POWERSTEP01_STATUS_TH_STATUS) != 0) {
+		//thermal status: 1: Warning, 2: Bridge shutdown, 3: Device shutdown
+	}
+
+	/* Check OCD  flag: if not set, there is an overcurrent detection */
+	if ((statusRegister & POWERSTEP01_STATUS_OCD) == 0) {
+		//overcurrent detection
+	}
+
+	/* Check STALL_A flag: if not set, there is a Stall condition on bridge A */
+	if ((statusRegister & POWERSTEP01_STATUS_STALL_A) == 0) {
+		//overcurrent detection
+	}
+
+	/* Check STALL_B flag: if not set, there is a Stall condition on bridge B */
+	if ((statusRegister & POWERSTEP01_STATUS_STALL_B) == 0) {
+		//overcurrent detection
+	}
+}
+
+/***************************************************************************/
+/*  This function is the User handler for the busy interrupt */
+void MyBusyInterruptHandler(void) {
+
+	if (Powerstep01_CheckBusyHw()) {
+		/* Busy pin is low, so at list one Powerstep01 chip is busy */
+		/* To be customized (for example Switch on a LED) */
+	} else {
+		/* To be customized (for example Switch off a LED) */
+	}
+}
+
+/***************************************************************************/
+void MyErrorHandler(uint16_t error) {
+
+	Error_Handler();
+}
 
 
 

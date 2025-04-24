@@ -186,7 +186,7 @@
 		<link>
 			<name>H17R1/H17R1_spi.c</name>
 			<type>1</type>
-			<locationURI>PARENT-1-PROJECT_LOC/H17R1/G0_MCU_Hardware.c</locationURI>
+			<locationURI>PARENT-1-PROJECT_LOC/H17R1/H17R1_spi.c</locationURI>
 		</link>
 		<link>
 			<name>H17R1/H17R1_spi.h</name>
