@@ -40,7 +40,7 @@ float Accelaration_voltage=582 , Declaration_voltage=582 , MaxSpeed_voltage=488 
 
 /* Module Parameters */
 ModuleParam_t ModuleParam[NUM_MODULE_PARAMS] ={0};
-
+void Error_Handler(void);
 void MX_TIM4_Init(void);
 /* Private variables ---------------------------------------------------------*/
 extern void MyBusyInterruptHandler(void);

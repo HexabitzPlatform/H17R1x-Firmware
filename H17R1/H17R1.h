@@ -1,23 +1,22 @@
 /*
- BitzOS (BOS) V0.3.6 - Copyright (C) 2017-2024 Hexabitz
+ BitzOS (BOS) V0.4.0 - Copyright (C) 2017-2025 Hexabitz
  All rights reserved
  
  File Name     : H17R1.h
  Description   : Header file for module H17R1.
- 	 	 	 	 (Description_of_module)
+ (Description_of_module)
 
-(Description of Special module peripheral configuration):
->>
->>
->>
-
+ (Description of Special module peripheral configuration):
+ >>
+ >>
+ >>
  */
 
-/* Define to prevent recursive inclusion -------------------------------------*/
+/* Define to prevent recursive inclusion ***********************************/
 #ifndef H17R1_H
 #define H17R1_H
 
-/* Includes ------------------------------------------------------------------*/
+/* Includes ****************************************************************/
 #include "BOS.h"
 #include "H17R1_MemoryMap.h"
 #include "H17R1_uart.h"
@@ -28,8 +27,7 @@
 #include "H17R1_eeprom.h"
 #include "powerstep01.h"
 
-/* Exported definitions -------------------------------------------------------*/
-
+/* Exported Macros *********************************************************/
 #define	MODULE_PN		_H17R1
 
 /* Port-related Definitions */
@@ -54,6 +52,7 @@
 #define UART_P3 &huart3
 #define UART_P4 &huart5
 
+/* Module-specific Hardware Definitions ************************************/
 /* Port Definitions */
 #define	USART2_TX_PIN		GPIO_PIN_2
 #define	USART2_RX_PIN		GPIO_PIN_3
@@ -67,6 +66,11 @@
 #define	USART3_RX_PORT		GPIOB
 #define	USART3_AF			GPIO_AF4_USART3
 
+#define	USART4_TX_PIN		GPIO_PIN_0
+#define	USART4_RX_PIN		GPIO_PIN_1
+#define	USART4_TX_PORT		GPIOA
+#define	USART4_RX_PORT		GPIOA
+#define	USART4_AF			GPIO_AF4_USART4
 
 #define	USART5_TX_PIN		GPIO_PIN_3
 #define	USART5_RX_PIN		GPIO_PIN_2
@@ -80,49 +84,59 @@
 #define	USART6_RX_PORT		GPIOB
 #define	USART6_AF			GPIO_AF8_USART6
 
-/* Module-specific Definitions */
-#define FLAG_Pin GPIO_PIN_11
-#define FLAG_GPIO_Port GPIOA
-#define FLAG_EXTI_IRQn EXTI4_15_IRQn
-#define BUSY_Pin GPIO_PIN_12
-#define BUSY_GPIO_Port GPIOA
-#define BUSY_EXTI_IRQn EXTI4_15_IRQn
-#define RESET_Pin GPIO_PIN_6
-#define RESET_GPIO_Port GPIOB
-#define STCK_Pin GPIO_PIN_7
-#define STCK_GPIO_Port GPIOB
+/* SPI Pin Definitions */
+#define SPI_SCK_PIN
+#define SPI_MOSI_PIN
+#define SPI_MISO_PIN
+#define SPI_PORT
 
-#define NUM_MODULE_PARAMS						1
+#define SPI_NSS_PIN
+#define SPI_NSS_PORT
 
-/* Module EEPROM Variables */
+#define SPI_HANDLER
 
-#define TIMER_PRESCALER (1024)
+/* Motor A/B Timer Definitions */
+#define MOTOR_PWM_PIN
+#define MOTOR_PWM_PORT
+#define MOTOR_TIM_HANDLE
+#define MOTOR_TIM_CH
+#define MOTOR_ARR
+#define MOTOR_CCR
 
-
-/// SPI Maximum Timeout values for flags waiting loops
-#define SPIx_TIMEOUT_MAX                      ((uint32_t)0x1000)
-
-// Module Addressing Space 500 - 599
-#define _EE_MODULE							500		
-
-/* Module_Status Type Definition */
-typedef enum {
-	SoftStop =0,
-	HardStop,
-	Clock
-} StoppingMethod;
-
-
-typedef enum {
-	H17R1_OK =0,
-	H17R1_ERR_UnknownMessage,
-	H17R1_ERR_WrongParams,
-	H17R1_ERROR =255
-} Module_Status;
+/* Stepper GPIO Pin Definitions */
+#define FLAG_Pin          GPIO_PIN_11
+#define FLAG_GPIO_Port    GPIOA
+#define FLAG_EXTI_IRQn    EXTI4_15_IRQn
+#define BUSY_Pin          GPIO_PIN_12
+#define BUSY_GPIO_Port    GPIOA
+#define BUSY_EXTI_IRQn    EXTI4_15_IRQn
+#define RESET_Pin         GPIO_PIN_6
+#define RESET_GPIO_Port   GPIOB
+#define STCK_Pin          GPIO_PIN_7
+#define STCK_GPIO_Port    GPIOB
 
 /* Indicator LED */
 #define _IND_LED_PORT			GPIOB
 #define _IND_LED_PIN			GPIO_PIN_14
+
+/* Module-specific Macro Definitions ***************************************/
+#define NUM_MODULE_PARAMS		  1
+#define TIMER_PRESCALER           (1024)
+#define SPIx_TIMEOUT_MAX          ((uint32_t)0x1000) /* SPI Maximum Timeout values for flags waiting loops */
+
+/* Module-specific Type Definition *****************************************/
+/* Module-status Type Definition */
+typedef enum {
+	H17R1_OK = 0,
+	H17R1_ERR_UnknownMessage,
+	H17R1_ERR_WrongParams,
+	H17R1_ERROR = 255
+} Module_Status;
+
+/* */
+typedef enum {
+	SoftStop = 0, HardStop, Clock
+} StoppingMethod;
 
 /* Export UART variables */
 extern UART_HandleTypeDef huart1;
@@ -140,34 +154,15 @@ extern void MX_USART4_UART_Init(void);
 extern void MX_USART5_UART_Init(void);
 extern void MX_USART6_UART_Init(void);
 extern void SystemClock_Config(void);
-extern void ExecuteMonitor(void);
-extern void Error_Handler(void);
 
-/* -----------------------------------------------------------------------
- |								  APIs							          |  																 	|
-/* -----------------------------------------------------------------------
- */
-
-void SetupPortForRemoteBootloaderUpdate(uint8_t port);
-void remoteBootloaderUpdate(uint8_t src,uint8_t dst,uint8_t inport,uint8_t outport);
-
-extern Module_Status StepperIcInit(int8_t steppermode,float Accelaration,float Declaration, float MaxSpeed,float  Overcurrent );
-extern Module_Status StepperMove( motorDir_t direction,  uint32_t n_step);
-extern Module_Status StepperRun( motorDir_t direction, uint32_t speed);
-extern Module_Status StepperStop(StoppingMethod mode );
-
-/* -----------------------------------------------------------------------
- |								Commands							      |															 	|
-/* -----------------------------------------------------------------------
- */
-extern const CLI_Command_Definition_t CLI_StepperIcInitCommandDefinition;
-extern const CLI_Command_Definition_t CLI_StepperMoveCommandDefinition;
-extern const CLI_Command_Definition_t CLI_StepperRunCommandDefinition;
-extern const CLI_Command_Definition_t CLI_StepperStopCommandDefinition;
-
-
-
+/***************************************************************************/
+/***************************** General Functions ***************************/
+/***************************************************************************/
+Module_Status StepperStop(StoppingMethod mode);
+Module_Status StepperRun(motorDir_t direction, uint32_t speed);
+Module_Status StepperMove(motorDir_t direction, uint32_t n_step);
+Module_Status StepperIcInit(int8_t steppermode, float Accelaration, float Declaration, float MaxSpeed, float Overcurrent);
 
 #endif /* H17R1_H */
 
-/************************ (C) COPYRIGHT HEXABITZ *****END OF FILE****/
+/***************** (C) COPYRIGHT HEXABITZ ***** END OF FILE ****************/
