@@ -85,58 +85,81 @@
 #define	USART6_AF			GPIO_AF8_USART6
 
 /* SPI Pin Definitions */
-#define SPI_SCK_PIN
-#define SPI_MOSI_PIN
-#define SPI_MISO_PIN
-#define SPI_PORT
+#define SPI_SCK_PIN         GPIO_PIN_3
+#define SPI_MOSI_PIN        GPIO_PIN_5
+#define SPI_MISO_PIN        GPIO_PIN_4
+#define SPI_PORT            GPIOB
 
-#define SPI_NSS_PIN
-#define SPI_NSS_PORT
+#define SPI_NSS_PIN         GPIO_PIN_15
+#define SPI_NSS_PORT        GPIOA
 
-#define SPI_HANDLER
+#define SPI_HANDLER         &hspi1
 
 /* Motor A/B Timer Definitions */
-#define MOTOR_PWM_PIN
-#define MOTOR_PWM_PORT
-#define MOTOR_TIM_HANDLE
-#define MOTOR_TIM_CH
-#define MOTOR_ARR
-#define MOTOR_CCR
+#define MOTOR_PWM_PIN       GPIO_PIN_7
+#define MOTOR_PWM_PORT      GPIOB
+#define MOTOR_TIM_HANDLE    &htim4
+#define MOTOR_TIM_CH        TIM_CHANNEL_2
+#define TIMER_PRESCALER     (1024)
 
 /* Stepper GPIO Pin Definitions */
-#define FLAG_Pin          GPIO_PIN_11
-#define FLAG_GPIO_Port    GPIOA
-#define FLAG_EXTI_IRQn    EXTI4_15_IRQn
-#define BUSY_Pin          GPIO_PIN_12
-#define BUSY_GPIO_Port    GPIOA
-#define BUSY_EXTI_IRQn    EXTI4_15_IRQn
-#define RESET_Pin         GPIO_PIN_6
-#define RESET_GPIO_Port   GPIOB
-#define STCK_Pin          GPIO_PIN_7
-#define STCK_GPIO_Port    GPIOB
+#define FLAG_PIN            GPIO_PIN_11
+#define FLAG_GPIO_PORT      GPIOA
+#define FLAG_EXTI_IRQN      EXTI4_15_IRQn
+#define BUSY_PIN            GPIO_PIN_12
+#define BUSY_GPIO_PORT      GPIOA
+#define BUSY_EXTI_IRQN      EXTI4_15_IRQn
+#define RESET_PIN           GPIO_PIN_6
+#define RESET_GPIO_PORT     GPIOB
 
 /* Indicator LED */
-#define _IND_LED_PORT			GPIOB
-#define _IND_LED_PIN			GPIO_PIN_14
+#define _IND_LED_PORT	    GPIOB
+#define _IND_LED_PIN	    GPIO_PIN_14
 
 /* Module-specific Macro Definitions ***************************************/
-#define NUM_MODULE_PARAMS		  1
-#define TIMER_PRESCALER           (1024)
-#define SPIx_TIMEOUT_MAX          ((uint32_t)0x1000) /* SPI Maximum Timeout values for flags waiting loops */
+#define NUM_MODULE_PARAMS	    1
+#define TIMEOUT_MAX             ((uint32_t)0x1000)
+
+#define MOTOR_MAX_SPEED         15610   /* step/tick */
+#define MOTOR_MIN_SPEED         15.25   /* step/tick */
+
+#define MOTOR_MAX_ACC_DEC_V_C   59590
+#define MOTOR_MIN_ACC_DEC_V_C   14.55
+
+/* Initialization parameters for current mode */
+#define ACCELERATION_CURRENT    5000
+#define DECLARATION_CURRENT     1000
+#define	MAX_SPEED_CURRENT       15610
+#define	OVERCURRENT_CURRENT     48
+
+/* Initialization parameters for voltage mode */
+#define ACCELERATION_VOLTAGE    582
+#define DECLARATION_VOLTAGE     582
+#define MAX_SPEED_VOLTAGE       488
+#define OVERCURRENT_VOLTAGE     281.25
 
 /* Module-specific Type Definition *****************************************/
 /* Module-status Type Definition */
 typedef enum {
 	H17R1_OK = 0,
-	H17R1_ERR_UnknownMessage,
-	H17R1_ERR_WrongParams,
+	H17R1_ERR_UNKNOWNMESSAGE,
+	H17R1_ERR_WRONGPARAMS,
 	H17R1_ERROR = 255
 } Module_Status;
 
-/* */
+/* Motor Driving Method */
 typedef enum {
-	SoftStop = 0, HardStop, Clock
+	CURRENT_MODE = 0,
+	VOLTAGE_MODE = 1
+}DrivingMethod;
+
+/* Motor Stopping Method */
+typedef enum {
+	SOFT_STOP = 0,
+	HARD_STOP,
+	CLOCK
 } StoppingMethod;
+
 
 /* Export UART variables */
 extern UART_HandleTypeDef huart1;
@@ -161,7 +184,7 @@ extern void SystemClock_Config(void);
 Module_Status StepperStop(StoppingMethod mode);
 Module_Status StepperRun(motorDir_t direction, uint32_t speed);
 Module_Status StepperMove(motorDir_t direction, uint32_t n_step);
-Module_Status StepperIcInit(int8_t steppermode, float Accelaration, float Declaration, float MaxSpeed, float Overcurrent);
+Module_Status StepperIcInit(DrivingMethod, float Accelaration, float Declaration, float MaxSpeed, float Overcurrent);
 
 #endif /* H17R1_H */
 

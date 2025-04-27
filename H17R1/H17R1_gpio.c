@@ -50,30 +50,30 @@ void StepperGPIOInit(void) {
 	__HAL_RCC_GPIOB_CLK_ENABLE();
 
 	/*Configure GPIO pin Output Level */
-	HAL_GPIO_WritePin(RESET_GPIO_Port, RESET_Pin, GPIO_PIN_RESET);
+	HAL_GPIO_WritePin(RESET_GPIO_PORT, RESET_PIN, GPIO_PIN_RESET);
 
 	/*Configure GPIO pin : FLAG_Pin */
-	GPIO_InitStruct.Pin = FLAG_Pin;
+	GPIO_InitStruct.Pin = FLAG_PIN;
 	GPIO_InitStruct.Mode = GPIO_MODE_IT_FALLING;
 	GPIO_InitStruct.Pull = GPIO_PULLUP;
-	HAL_GPIO_Init(FLAG_GPIO_Port, &GPIO_InitStruct);
+	HAL_GPIO_Init(FLAG_GPIO_PORT, &GPIO_InitStruct);
 
 	/*Configure GPIO pin : BUSY_Pin */
-	GPIO_InitStruct.Pin = BUSY_Pin;
+	GPIO_InitStruct.Pin = BUSY_PIN;
 	GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING_FALLING;
 	GPIO_InitStruct.Pull = GPIO_PULLUP;
-	HAL_GPIO_Init(BUSY_GPIO_Port, &GPIO_InitStruct);
+	HAL_GPIO_Init(BUSY_GPIO_PORT, &GPIO_InitStruct);
 
 	/*Configure GPIO pin : RESET_Pin */
-	GPIO_InitStruct.Pin = RESET_Pin;
+	GPIO_InitStruct.Pin = RESET_PIN;
 	GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
 	GPIO_InitStruct.Pull = GPIO_NOPULL;
 	GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_MEDIUM;
-	HAL_GPIO_Init(RESET_GPIO_Port, &GPIO_InitStruct);
+	HAL_GPIO_Init(RESET_GPIO_PORT, &GPIO_InitStruct);
 
 	/* EXTI interrupt init*/
-	HAL_NVIC_SetPriority(EXTI4_15_IRQn, 1, 0);
-	HAL_NVIC_EnableIRQ(EXTI4_15_IRQn);
+	HAL_NVIC_SetPriority(FLAG_EXTI_IRQN, 1, 0);
+	HAL_NVIC_EnableIRQ(FLAG_EXTI_IRQN);
 }
 
 /***************************************************************************/

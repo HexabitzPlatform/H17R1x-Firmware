@@ -1,10 +1,10 @@
 /*
- BitzOS (BOS) V0.3.6 - Copyright (C) 2017-2024 Hexabitz
+ BitzOS (BOS) V0.4.0 - Copyright (C) 2017-2025 Hexabitz
  All rights reserved
 
  File Name     : powerstep01_target_config.h
  Description   : Predefines values for the Powerstep01 registers
-  * and for the devices parameters
+                 and for the devices parameters
  */
 
 #ifndef __POWERSTEP01_TARGET_CONFIG_H

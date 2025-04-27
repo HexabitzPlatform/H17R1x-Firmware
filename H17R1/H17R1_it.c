@@ -81,26 +81,25 @@ void TIM3_TIM4_IRQHandler(void) {
 /***************************************************************************/
 void EXTI4_15_IRQHandler(void) {
 
-	HAL_GPIO_EXTI_IRQHandler(FLAG_Pin);
-	HAL_GPIO_EXTI_IRQHandler(BUSY_Pin);
+	HAL_GPIO_EXTI_IRQHandler(FLAG_PIN);
+	HAL_GPIO_EXTI_IRQHandler(BUSY_PIN);
 }
 
 /***************************************************************************/
 void HAL_GPIO_EXTI_Rising_Callback(uint16_t GPIO_Pin) {
-	if (GPIO_Pin == BUSY_Pin) {
+	if (GPIO_Pin == BUSY_PIN) {
 		Powerstep01_BusyInterruptHandler();
 	}
 }
 
 /***************************************************************************/
 void HAL_GPIO_EXTI_Falling_Callback(uint16_t GPIO_Pin) {
-	if (GPIO_Pin == BUSY_Pin) {
+	if (GPIO_Pin == BUSY_PIN)
 		Powerstep01_BusyInterruptHandler();
-	}
 
-	if (GPIO_Pin == FLAG_Pin) {
+	if (GPIO_Pin == FLAG_PIN)
 		Powerstep01_FlagInterruptHandler();
-	}
+
 }
 
 /***************************************************************************/
