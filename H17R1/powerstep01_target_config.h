@@ -11,7 +11,7 @@
 #define __POWERSTEP01_TARGET_CONFIG_H
 
 /// The maximum number of devices in the daisy chain
-#define MAX_NUMBER_OF_DEVICES                 (3)
+#define MAX_NUMBER_OF_DEVICES                 (1)
 
 /****************************************************************************/
 /* Device 0                                                                 */

@@ -23,8 +23,8 @@ void (*flagInterruptCallback)(void);
 /// Function pointer to error handler call back
 void (*errorHandlerCallback)(uint16_t);
 static volatile uint8_t numberOfDevices;
-static uint8_t spiTxBursts[POWERSTEP01_CMD_ARG_MAX_NB_BYTES][MAX_NUMBER_OF_DEVICES];
-static uint8_t spiRxBursts[POWERSTEP01_CMD_ARG_MAX_NB_BYTES][MAX_NUMBER_OF_DEVICES];
+static uint8_t spiTxBursts [POWERSTEP01_CMD_ARG_MAX_NB_BYTES] [MAX_NUMBER_OF_DEVICES];
+static uint8_t spiRxBursts [POWERSTEP01_CMD_ARG_MAX_NB_BYTES] [MAX_NUMBER_OF_DEVICES];
 static volatile bool spiPreemtionByIsr = FALSE;
 static volatile bool isrFlag = FALSE;
 static uint16_t powerstep01DriverInstance = 0;
@@ -36,8 +36,7 @@ void Powerstep01_ErrorHandler(uint16_t error);
 void Powerstep01_FlagInterruptHandler(void);
 void Powerstep01_SendCommand(uint8_t deviceId, uint8_t command, uint32_t value);
 void Powerstep01_SetRegisterToPredefinedValues(uint8_t deviceId);
-void Powerstep01_SetDeviceParamsToGivenValues(uint8_t deviceId,
-		powerstep01_Init_u_t *initPrm);
+void Powerstep01_SetDeviceParamsToGivenValues(uint8_t deviceId, powerstep01_Init_u_t *initPrm);
 void Powerstep01_WriteBytes(uint8_t *pByteToTransmit, uint8_t *pReceivedByte);
 
 /**
@@ -156,8 +155,7 @@ void Powerstep01_Init(void *pInit) {
 		// Set all registers to their predefined values from powerstep01_target_config.h
 		Powerstep01_SetRegisterToPredefinedValues(powerstep01DriverInstance);
 	} else {
-		Powerstep01_SetDeviceParamsToGivenValues(powerstep01DriverInstance,
-				pInit);
+		Powerstep01_SetDeviceParamsToGivenValues(powerstep01DriverInstance, pInit);
 	}
 
 	// Put the Powerstep01 in HiZ state
@@ -220,21 +218,20 @@ uint32_t Powerstep01_CmdGetParam(uint8_t deviceId, uint32_t param) {
 				itDisable = FALSE;
 			}
 			for (loop = 0; loop < numberOfDevices; loop++) {
-				spiTxBursts[0][loop] = POWERSTEP01_NOP;
-				spiTxBursts[1][loop] = POWERSTEP01_NOP;
-				spiTxBursts[2][loop] = POWERSTEP01_NOP;
-				spiTxBursts[3][loop] = POWERSTEP01_NOP;
-				spiRxBursts[0][loop] = 0;
-				spiRxBursts[1][loop] = 0;
-				spiRxBursts[2][loop] = 0;
-				spiRxBursts[3][loop] = 0;
+				spiTxBursts [0] [loop] = POWERSTEP01_NOP;
+				spiTxBursts [1] [loop] = POWERSTEP01_NOP;
+				spiTxBursts [2] [loop] = POWERSTEP01_NOP;
+				spiTxBursts [3] [loop] = POWERSTEP01_NOP;
+				spiRxBursts [0] [loop] = 0;
+				spiRxBursts [1] [loop] = 0;
+				spiRxBursts [2] [loop] = 0;
+				spiRxBursts [3] [loop] = 0;
 			}
 			switch (param) {
 			case POWERSTEP01_ABS_POS:
 			case POWERSTEP01_MARK:
 			case POWERSTEP01_SPEED:
-				spiTxBursts[0][spiIndex] = ((uint8_t) POWERSTEP01_GET_PARAM)
-						| (param);
+				spiTxBursts [0] [spiIndex] = ((uint8_t) POWERSTEP01_GET_PARAM) | (param);
 				maxArgumentNbBytes = 3;
 				break;
 			case POWERSTEP01_EL_POS:
@@ -247,13 +244,11 @@ uint32_t Powerstep01_CmdGetParam(uint8_t deviceId, uint32_t param) {
 			case POWERSTEP01_CONFIG:
 			case POWERSTEP01_GATECFG1:
 			case POWERSTEP01_STATUS:
-				spiTxBursts[1][spiIndex] = ((uint8_t) POWERSTEP01_GET_PARAM)
-						| (param);
+				spiTxBursts [1] [spiIndex] = ((uint8_t) POWERSTEP01_GET_PARAM) | (param);
 				maxArgumentNbBytes = 2;
 				break;
 			default:
-				spiTxBursts[2][spiIndex] = ((uint8_t) POWERSTEP01_GET_PARAM)
-						| (param);
+				spiTxBursts [2] [spiIndex] = ((uint8_t) POWERSTEP01_GET_PARAM) | (param);
 				maxArgumentNbBytes = 1;
 			}
 			/* Disable interruption before checking */
@@ -261,13 +256,12 @@ uint32_t Powerstep01_CmdGetParam(uint8_t deviceId, uint32_t param) {
 			Powerstep01_Board_DisableIrq();
 			itDisable = TRUE;
 		} while (spiPreemtionByIsr); // check pre-emption by ISR
-		for (loop = POWERSTEP01_CMD_ARG_MAX_NB_BYTES - 1 - maxArgumentNbBytes;
-				loop < POWERSTEP01_CMD_ARG_MAX_NB_BYTES; loop++) {
-			Powerstep01_WriteBytes(&spiTxBursts[loop][0],
-					&spiRxBursts[loop][0]);
+		for (loop = POWERSTEP01_CMD_ARG_MAX_NB_BYTES - 1 - maxArgumentNbBytes; loop < POWERSTEP01_CMD_ARG_MAX_NB_BYTES;
+				loop++) {
+			Powerstep01_WriteBytes(&spiTxBursts [loop] [0], &spiRxBursts [loop] [0]);
 		}
-		spiRxData = ((uint32_t) spiRxBursts[1][spiIndex] << 16)
-				| (spiRxBursts[2][spiIndex] << 8) | (spiRxBursts[3][spiIndex]);
+		spiRxData = ((uint32_t) spiRxBursts [1] [spiIndex] << 16) | (spiRxBursts [2] [spiIndex] << 8)
+				| (spiRxBursts [3] [spiIndex]);
 		/* re-enable Powerstep01_Board_EnableIrq after SPI transfers*/
 		Powerstep01_Board_EnableIrq();
 	}
@@ -295,29 +289,25 @@ uint16_t Powerstep01_CmdGetStatus(uint8_t deviceId) {
 				itDisable = FALSE;
 			}
 			for (loop = 0; loop < numberOfDevices; loop++) {
-				spiTxBursts[0][loop] = POWERSTEP01_NOP;
-				spiTxBursts[1][loop] = POWERSTEP01_NOP;
-				spiTxBursts[2][loop] = POWERSTEP01_NOP;
-				spiTxBursts[3][loop] = POWERSTEP01_NOP;
-				spiRxBursts[0][loop] = 0;
-				spiRxBursts[1][loop] = 0;
-				spiRxBursts[2][loop] = 0;
-				spiRxBursts[3][loop] = 0;
+				spiTxBursts [0] [loop] = POWERSTEP01_NOP;
+				spiTxBursts [1] [loop] = POWERSTEP01_NOP;
+				spiTxBursts [2] [loop] = POWERSTEP01_NOP;
+				spiTxBursts [3] [loop] = POWERSTEP01_NOP;
+				spiRxBursts [0] [loop] = 0;
+				spiRxBursts [1] [loop] = 0;
+				spiRxBursts [2] [loop] = 0;
+				spiRxBursts [3] [loop] = 0;
 			}
-			spiTxBursts[0][spiIndex] = POWERSTEP01_GET_STATUS;
+			spiTxBursts [0] [spiIndex] = POWERSTEP01_GET_STATUS;
 			/* Disable interruption before checking */
 			/* pre-emption by ISR and SPI transfers*/
 			Powerstep01_Board_DisableIrq();
 			itDisable = TRUE;
 		} while (spiPreemtionByIsr); // check pre-emption by ISR
-		for (loop = 0;
-				loop
-						< POWERSTEP01_CMD_ARG_NB_BYTES_GET_STATUS
-								+ POWERSTEP01_RSP_NB_BYTES_GET_STATUS; loop++) {
-			Powerstep01_WriteBytes(&spiTxBursts[loop][0],
-					&spiRxBursts[loop][0]);
+		for (loop = 0; loop < POWERSTEP01_CMD_ARG_NB_BYTES_GET_STATUS + POWERSTEP01_RSP_NB_BYTES_GET_STATUS; loop++) {
+			Powerstep01_WriteBytes(&spiTxBursts [loop] [0], &spiRxBursts [loop] [0]);
 		}
-		status = (spiRxBursts[1][spiIndex] << 8) | (spiRxBursts[2][spiIndex]);
+		status = (spiRxBursts [1] [spiIndex] << 8) | (spiRxBursts [2] [spiIndex]);
 		/* re-enable Powerstep01_Board_EnableIrq after SPI transfers*/
 		Powerstep01_Board_EnableIrq();
 	}
@@ -361,10 +351,8 @@ void Powerstep01_CmdGoTo(uint8_t deviceId, int32_t abs_pos) {
  * with the step mode where requested to move
  * @retval None
  *********************************************************/
-void Powerstep01_CmdGoToDir(uint8_t deviceId, motorDir_t direction,
-		int32_t abs_pos) {
-	Powerstep01_SendCommand(deviceId,
-			(uint8_t) POWERSTEP01_GO_TO_DIR | (uint8_t) direction, abs_pos);
+void Powerstep01_CmdGoToDir(uint8_t deviceId, motorDir_t direction, int32_t abs_pos) {
+	Powerstep01_SendCommand(deviceId, (uint8_t) POWERSTEP01_GO_TO_DIR | (uint8_t) direction, abs_pos);
 }
 
 /******************************************************//**
@@ -375,11 +363,8 @@ void Powerstep01_CmdGoToDir(uint8_t deviceId, motorDir_t direction,
  * @param[in] speed in 2^-28 step/tick
  * @retval None
  *********************************************************/
-void Powerstep01_CmdGoUntil(uint8_t deviceId, motorAction_t action,
-		motorDir_t direction, uint32_t speed) {
-	Powerstep01_SendCommand(deviceId,
-			(uint8_t) POWERSTEP01_GO_UNTIL | (uint8_t) action
-					| (uint8_t) direction, speed);
+void Powerstep01_CmdGoUntil(uint8_t deviceId, motorAction_t action, motorDir_t direction, uint32_t speed) {
+	Powerstep01_SendCommand(deviceId, (uint8_t) POWERSTEP01_GO_UNTIL | (uint8_t) action | (uint8_t) direction, speed);
 }
 
 /******************************************************//**
@@ -418,10 +403,8 @@ void Powerstep01_CmdHardStop(uint8_t deviceId) {
  * @param[in] n_step number of steps
  * @retval None
  *********************************************************/
-void Powerstep01_CmdMove(uint8_t deviceId, motorDir_t direction,
-		uint32_t n_step) {
-	Powerstep01_SendCommand(deviceId,
-			(uint8_t) POWERSTEP01_MOVE | (uint8_t) direction, n_step);
+void Powerstep01_CmdMove(uint8_t deviceId, motorDir_t direction, uint32_t n_step) {
+	Powerstep01_SendCommand(deviceId, (uint8_t) POWERSTEP01_MOVE | (uint8_t) direction, n_step);
 }
 
 /******************************************************//**
@@ -442,11 +425,8 @@ void Powerstep01_CmdNop(uint8_t deviceId) {
  * @param[in] direction movement direction
  * @retval None
  *********************************************************/
-void Powerstep01_CmdReleaseSw(uint8_t deviceId, motorAction_t action,
-		motorDir_t direction) {
-	Powerstep01_SendCommand(deviceId,
-			(uint8_t) POWERSTEP01_RELEASE_SW | (uint8_t) action
-					| (uint8_t) direction, 0);
+void Powerstep01_CmdReleaseSw(uint8_t deviceId, motorAction_t action, motorDir_t direction) {
+	Powerstep01_SendCommand(deviceId, (uint8_t) POWERSTEP01_RELEASE_SW | (uint8_t) action | (uint8_t) direction, 0);
 }
 
 /******************************************************//**
@@ -475,8 +455,7 @@ void Powerstep01_CmdResetPos(uint8_t deviceId) {
  * @retval None
  *********************************************************/
 void Powerstep01_CmdRun(uint8_t deviceId, motorDir_t direction, uint32_t speed) {
-	Powerstep01_SendCommand(deviceId,
-			(uint8_t) POWERSTEP01_RUN | (uint8_t) direction, speed);
+	Powerstep01_SendCommand(deviceId, (uint8_t) POWERSTEP01_RUN | (uint8_t) direction, speed);
 }
 
 /******************************************************//**
@@ -502,19 +481,18 @@ void Powerstep01_CmdSetParam(uint8_t deviceId, uint32_t param, uint32_t value) {
 				itDisable = FALSE;
 			}
 			for (loop = 0; loop < numberOfDevices; loop++) {
-				spiTxBursts[0][loop] = POWERSTEP01_NOP;
-				spiTxBursts[1][loop] = POWERSTEP01_NOP;
-				spiTxBursts[2][loop] = POWERSTEP01_NOP;
-				spiTxBursts[3][loop] = POWERSTEP01_NOP;
+				spiTxBursts [0] [loop] = POWERSTEP01_NOP;
+				spiTxBursts [1] [loop] = POWERSTEP01_NOP;
+				spiTxBursts [2] [loop] = POWERSTEP01_NOP;
+				spiTxBursts [3] [loop] = POWERSTEP01_NOP;
 			}
 			switch (param) {
 			case POWERSTEP01_ABS_POS:
 				;
 			case POWERSTEP01_MARK:
-				spiTxBursts[0][spiIndex] = ((uint8_t) POWERSTEP01_SET_PARAM)
-						| (param);
-				spiTxBursts[1][spiIndex] = (uint8_t) (value >> 16);
-				spiTxBursts[2][spiIndex] = (uint8_t) (value >> 8);
+				spiTxBursts [0] [spiIndex] = ((uint8_t) POWERSTEP01_SET_PARAM) | (param);
+				spiTxBursts [1] [spiIndex] = (uint8_t) (value >> 16);
+				spiTxBursts [2] [spiIndex] = (uint8_t) (value >> 8);
 				maxArgumentNbBytes = 3;
 				break;
 			case POWERSTEP01_EL_POS:
@@ -526,27 +504,24 @@ void Powerstep01_CmdSetParam(uint8_t deviceId, uint32_t param, uint32_t value) {
 			case POWERSTEP01_INT_SPD:
 			case POWERSTEP01_CONFIG:
 			case POWERSTEP01_GATECFG1:
-				spiTxBursts[1][spiIndex] = ((uint8_t) POWERSTEP01_SET_PARAM)
-						| (param);
-				spiTxBursts[2][spiIndex] = (uint8_t) (value >> 8);
+				spiTxBursts [1] [spiIndex] = ((uint8_t) POWERSTEP01_SET_PARAM) | (param);
+				spiTxBursts [2] [spiIndex] = (uint8_t) (value >> 8);
 				maxArgumentNbBytes = 2;
 				break;
 			default:
-				spiTxBursts[2][spiIndex] = ((uint8_t) POWERSTEP01_SET_PARAM)
-						| (param);
+				spiTxBursts [2] [spiIndex] = ((uint8_t) POWERSTEP01_SET_PARAM) | (param);
 				maxArgumentNbBytes = 1;
 			}
-			spiTxBursts[3][spiIndex] = (uint8_t) (value);
+			spiTxBursts [3] [spiIndex] = (uint8_t) (value);
 			/* Disable interruption before checking */
 			/* pre-emption by ISR and SPI transfers*/
 			Powerstep01_Board_DisableIrq();
 			itDisable = TRUE;
 		} while (spiPreemtionByIsr); // check pre-emption by ISR
 		/* SPI transfer */
-		for (loop = POWERSTEP01_CMD_ARG_MAX_NB_BYTES - 1 - maxArgumentNbBytes;
-				loop < POWERSTEP01_CMD_ARG_MAX_NB_BYTES; loop++) {
-			Powerstep01_WriteBytes(&spiTxBursts[loop][0],
-					&spiRxBursts[loop][0]);
+		for (loop = POWERSTEP01_CMD_ARG_MAX_NB_BYTES - 1 - maxArgumentNbBytes; loop < POWERSTEP01_CMD_ARG_MAX_NB_BYTES;
+				loop++) {
+			Powerstep01_WriteBytes(&spiTxBursts [loop] [0], &spiRxBursts [loop] [0]);
 		}
 		/* re-enable Powerstep01_Board_EnableIrq after SPI transfers*/
 		Powerstep01_Board_EnableIrq();
@@ -594,8 +569,7 @@ void Powerstep01_CmdSoftStop(uint8_t deviceId) {
  * @retval None
  *********************************************************/
 void Powerstep01_CmdStepClock(uint8_t deviceId, motorDir_t direction) {
-	Powerstep01_SendCommand(deviceId,
-			(uint8_t) POWERSTEP01_STEP_CLOCK | (uint8_t) direction, 0);
+	Powerstep01_SendCommand(deviceId, (uint8_t) POWERSTEP01_STEP_CLOCK | (uint8_t) direction, 0);
 }
 
 /******************************************************//**
@@ -612,18 +586,18 @@ void Powerstep01_FetchAndClearAllStatus(void) {
 	uint8_t loop;
 
 	for (loop = 0; loop < numberOfDevices; loop++) {
-		spiTxBursts[0][loop] = POWERSTEP01_GET_STATUS;
-		spiTxBursts[1][loop] = POWERSTEP01_NOP;
-		spiTxBursts[2][loop] = POWERSTEP01_NOP;
-		spiTxBursts[3][loop] = POWERSTEP01_NOP;
-		spiRxBursts[0][loop] = 0;
-		spiRxBursts[1][loop] = 0;
-		spiRxBursts[2][loop] = 0;
-		spiRxBursts[3][loop] = 0;
+		spiTxBursts [0] [loop] = POWERSTEP01_GET_STATUS;
+		spiTxBursts [1] [loop] = POWERSTEP01_NOP;
+		spiTxBursts [2] [loop] = POWERSTEP01_NOP;
+		spiTxBursts [3] [loop] = POWERSTEP01_NOP;
+		spiRxBursts [0] [loop] = 0;
+		spiRxBursts [1] [loop] = 0;
+		spiRxBursts [2] [loop] = 0;
+		spiRxBursts [3] [loop] = 0;
 	}
 	for (loop = 0; loop < POWERSTEP01_CMD_ARG_NB_BYTES_GET_STATUS +
 	POWERSTEP01_RSP_NB_BYTES_GET_STATUS; loop++) {
-		Powerstep01_WriteBytes(&spiTxBursts[loop][0], &spiRxBursts[loop][0]);
+		Powerstep01_WriteBytes(&spiTxBursts [loop] [0], &spiRxBursts [loop] [0]);
 	}
 }
 
@@ -639,7 +613,7 @@ uint16_t Powerstep01_GetFetchedStatus(uint8_t deviceId) {
 	uint16_t status = 0;
 	if (numberOfDevices > deviceId) {
 		uint8_t spiIndex = numberOfDevices - deviceId - 1;
-		status = (spiRxBursts[1][spiIndex] << 8) | (spiRxBursts[2][spiIndex]);
+		status = (spiRxBursts [1] [spiIndex] << 8) | (spiRxBursts [2] [spiIndex]);
 	}
 	return (status);
 }
@@ -658,8 +632,7 @@ uint32_t Powerstep01_GetFwVersion(void) {
  * @retval Mark register value converted in a 32b signed integer 
  **********************************************************/
 int32_t Powerstep01_GetMark(uint8_t deviceId) {
-	return Powerstep01_ConvertPosition(
-			Powerstep01_CmdGetParam(deviceId, POWERSTEP01_MARK));
+	return Powerstep01_ConvertPosition(Powerstep01_CmdGetParam(deviceId, POWERSTEP01_MARK));
 }
 
 /******************************************************//**
@@ -678,8 +651,7 @@ uint8_t Powerstep01_GetNbDevices(void) {
  * @retval Register value - 1 to 3 bytes (depends on register)
  *********************************************************/
 float Powerstep01_GetAnalogValue(uint8_t deviceId, uint32_t param) {
-	bool voltageMode = ((POWERSTEP01_CM_VM_CURRENT
-			& Powerstep01_CmdGetParam(deviceId, POWERSTEP01_STEP_MODE)) == 0);
+	bool voltageMode = ((POWERSTEP01_CM_VM_CURRENT & Powerstep01_CmdGetParam(deviceId, POWERSTEP01_STEP_MODE)) == 0);
 	uint32_t registerValue = Powerstep01_CmdGetParam(deviceId, param);
 	float value;
 	switch (param) {
@@ -747,8 +719,7 @@ float Powerstep01_GetAnalogValue(uint8_t deviceId, uint32_t param) {
  * @retval ABS_POSITION register value converted in a 32b signed integer
  **********************************************************/
 int32_t Powerstep01_GetPosition(uint8_t deviceId) {
-	return Powerstep01_ConvertPosition(
-			Powerstep01_CmdGetParam(deviceId, POWERSTEP01_ABS_POS));
+	return Powerstep01_ConvertPosition(Powerstep01_CmdGetParam(deviceId, POWERSTEP01_ABS_POS));
 }
 
 /******************************************************//**
@@ -796,16 +767,16 @@ void Powerstep01_QueueCommands(uint8_t deviceId, uint8_t command, int32_t value)
 		case POWERSTEP01_GO_UNTIL:
 			;
 		case POWERSTEP01_GO_UNTIL_ACT_CPY:
-			spiTxBursts[0][spiIndex] = command;
-			spiTxBursts[1][spiIndex] = (uint8_t) (value >> 16);
-			spiTxBursts[2][spiIndex] = (uint8_t) (value >> 8);
-			spiTxBursts[3][spiIndex] = (uint8_t) (value);
+			spiTxBursts [0] [spiIndex] = command;
+			spiTxBursts [1] [spiIndex] = (uint8_t) (value >> 16);
+			spiTxBursts [2] [spiIndex] = (uint8_t) (value >> 8);
+			spiTxBursts [3] [spiIndex] = (uint8_t) (value);
 			break;
 		default:
-			spiTxBursts[0][spiIndex] = POWERSTEP01_NOP;
-			spiTxBursts[1][spiIndex] = POWERSTEP01_NOP;
-			spiTxBursts[2][spiIndex] = POWERSTEP01_NOP;
-			spiTxBursts[3][spiIndex] = command;
+			spiTxBursts [0] [spiIndex] = POWERSTEP01_NOP;
+			spiTxBursts [1] [spiIndex] = POWERSTEP01_NOP;
+			spiTxBursts [2] [spiIndex] = POWERSTEP01_NOP;
+			spiTxBursts [3] [spiIndex] = command;
 		}
 	}
 }
@@ -882,12 +853,10 @@ bool Powerstep01_SelectStepMode(uint8_t deviceId, motorStepMode_t stepMode) {
 	Powerstep01_CmdHardHiZ(deviceId);
 
 	/* Read Step mode register and clear STEP_SEL field */
-	stepModeRegister = (uint8_t) (0xF8
-			& Powerstep01_CmdGetParam(deviceId, POWERSTEP01_STEP_MODE));
+	stepModeRegister = (uint8_t) (0xF8 & Powerstep01_CmdGetParam(deviceId, POWERSTEP01_STEP_MODE));
 
 	/* Apply new step mode */
-	Powerstep01_CmdSetParam(deviceId, POWERSTEP01_STEP_MODE,
-			stepModeRegister | (uint8_t) powerstep01StepMode);
+	Powerstep01_CmdSetParam(deviceId, POWERSTEP01_STEP_MODE, stepModeRegister | (uint8_t) powerstep01StepMode);
 
 	/* Reset abs pos register */
 	Powerstep01_CmdResetPos(deviceId);
@@ -904,7 +873,7 @@ void Powerstep01_SendQueuedCommands(void) {
 	uint8_t loop;
 
 	for (loop = 0; loop < POWERSTEP01_CMD_ARG_MAX_NB_BYTES; loop++) {
-		Powerstep01_WriteBytes(&spiTxBursts[loop][0], &spiRxBursts[loop][0]);
+		Powerstep01_WriteBytes(&spiTxBursts [loop] [0], &spiRxBursts [loop] [0]);
 	}
 }
 
@@ -916,10 +885,8 @@ void Powerstep01_SendQueuedCommands(void) {
  * @retval None
  **********************************************************/
 void Powerstep01_SetHome(uint8_t deviceId, int32_t homePos) {
-	uint32_t currentPos = Powerstep01_CmdGetParam(deviceId,
-			POWERSTEP01_ABS_POS);
-	Powerstep01_CmdSetParam(deviceId, POWERSTEP01_ABS_POS,
-			currentPos - homePos);
+	uint32_t currentPos = Powerstep01_CmdGetParam(deviceId, POWERSTEP01_ABS_POS);
+	Powerstep01_CmdSetParam(deviceId, POWERSTEP01_ABS_POS, currentPos - homePos);
 }
 
 /******************************************************//**
@@ -957,44 +924,35 @@ bool Powerstep01_SetNbDevices(uint8_t nbDevices) {
 bool Powerstep01_SetAnalogValue(uint8_t deviceId, uint32_t param, float value) {
 	uint32_t registerValue;
 	bool result = TRUE;
-	bool voltageMode = ((POWERSTEP01_CM_VM_CURRENT
-			& Powerstep01_CmdGetParam(deviceId, POWERSTEP01_STEP_MODE)) == 0);
-	if ((value < 0)
-			&& ((param != POWERSTEP01_ABS_POS) && (param != POWERSTEP01_MARK))) {
+	bool voltageMode = ((POWERSTEP01_CM_VM_CURRENT & Powerstep01_CmdGetParam(deviceId, POWERSTEP01_STEP_MODE)) == 0);
+	if ((value < 0) && ((param != POWERSTEP01_ABS_POS) && (param != POWERSTEP01_MARK))) {
 		result = FALSE;
 	}
 	switch (param) {
 	case POWERSTEP01_EL_POS:
-		if ((value
-				> (POWERSTEP01_ELPOS_STEP_MASK
-						| POWERSTEP01_ELPOS_MICROSTEP_MASK))
+		if ((value > (POWERSTEP01_ELPOS_STEP_MASK | POWERSTEP01_ELPOS_MICROSTEP_MASK))
 				|| ((value != 0)
 						&& (value
 								< (1
 										<< (7
 												- (POWERSTEP01_STEP_MODE_STEP_SEL
-														& Powerstep01_CmdGetParam(
-																0,
-																POWERSTEP01_STEP_MODE)))))))
+														& Powerstep01_CmdGetParam(0, POWERSTEP01_STEP_MODE)))))))
 			result = FALSE;
 		else
-			registerValue = ((uint32_t) value)
-					& (POWERSTEP01_ELPOS_STEP_MASK
-							| POWERSTEP01_ELPOS_MICROSTEP_MASK);
+			registerValue = ((uint32_t) value) & (POWERSTEP01_ELPOS_STEP_MASK | POWERSTEP01_ELPOS_MICROSTEP_MASK);
 		break;
 	case POWERSTEP01_ABS_POS:
 	case POWERSTEP01_MARK:
 		if (value < 0) {
 			value = -value;
 			if (((uint32_t) value) <= (POWERSTEP01_MAX_POSITION + 1))
-				registerValue = (POWERSTEP01_ABS_POS_VALUE_MASK + 1
-						- (uint32_t) value) & POWERSTEP01_ABS_POS_VALUE_MASK;
+				registerValue = (POWERSTEP01_ABS_POS_VALUE_MASK + 1 - (uint32_t) value)
+						& POWERSTEP01_ABS_POS_VALUE_MASK;
 			else
 				result = FALSE;
 		} else {
 			if (((uint32_t) value) <= POWERSTEP01_MAX_POSITION)
-				registerValue = ((uint32_t) value)
-						& POWERSTEP01_ABS_POS_VALUE_MASK;
+				registerValue = ((uint32_t) value) & POWERSTEP01_ABS_POS_VALUE_MASK;
 			else
 				result = FALSE;
 		}
@@ -1016,16 +974,14 @@ bool Powerstep01_SetAnalogValue(uint8_t deviceId, uint32_t param, float value) {
 		if (value > POWERSTEP01_MIN_SPEED_MAX_VALUE)
 			result = FALSE;
 		else
-			registerValue = (POWERSTEP01_LSPD_OPT
-					& Powerstep01_CmdGetParam(deviceId, param))
+			registerValue = (POWERSTEP01_LSPD_OPT & Powerstep01_CmdGetParam(deviceId, param))
 					| Powerstep01_MinSpd_Steps_s_to_RegVal(value);
 		break;
 	case POWERSTEP01_FS_SPD:
 		if (value > POWERSTEP01_FS_SPD_MAX_VALUE)
 			result = FALSE;
 		else
-			registerValue = (POWERSTEP01_BOOST_MODE
-					& Powerstep01_CmdGetParam(deviceId, param))
+			registerValue = (POWERSTEP01_BOOST_MODE & Powerstep01_CmdGetParam(deviceId, param))
 					| Powerstep01_FSSpd_Steps_s_to_RegVal(value);
 		break;
 	case POWERSTEP01_INT_SPD:
@@ -1035,8 +991,7 @@ bool Powerstep01_SetAnalogValue(uint8_t deviceId, uint32_t param, float value) {
 			registerValue = Powerstep01_IntSpd_Steps_s_to_RegVal(value);
 		break;
 	case POWERSTEP01_K_THERM:
-		if ((value < POWERSTEP01_K_THERM_MIN_VALUE )
-				|| (value > POWERSTEP01_K_THERM_MAX_VALUE ))
+		if ((value < POWERSTEP01_K_THERM_MIN_VALUE ) || (value > POWERSTEP01_K_THERM_MAX_VALUE ))
 			result = FALSE;
 		else
 			registerValue = Powerstep01_KTherm_Comp_to_RegVal(value);
@@ -1134,8 +1089,7 @@ void Powerstep01_WaitForAllDevicesNotBusy(void) {
  **********************************************************/
 void Powerstep01_WaitWhileActive(uint8_t deviceId) {
 	/* Wait while motor is running */
-	while (Powerstep01_IsDeviceBusy(deviceId) != 0)
-		;
+	while (Powerstep01_IsDeviceBusy(deviceId) != 0);
 }
 
 /**
@@ -1158,8 +1112,7 @@ int32_t Powerstep01_ConvertPosition(uint32_t abs_position_reg) {
 		abs_position_reg = ~abs_position_reg;
 		abs_position_reg += 1;
 
-		operation_result = (int32_t) (abs_position_reg
-				& POWERSTEP01_ABS_POS_VALUE_MASK);
+		operation_result = (int32_t) (abs_position_reg & POWERSTEP01_ABS_POS_VALUE_MASK);
 		operation_result = -operation_result;
 	} else {
 		operation_result = (int32_t) abs_position_reg;
@@ -1238,10 +1191,10 @@ void Powerstep01_SendCommand(uint8_t deviceId, uint8_t param, uint32_t value) {
 				itDisable = FALSE;
 			}
 			for (loop = 0; loop < numberOfDevices; loop++) {
-				spiTxBursts[0][loop] = POWERSTEP01_NOP;
-				spiTxBursts[1][loop] = POWERSTEP01_NOP;
-				spiTxBursts[2][loop] = POWERSTEP01_NOP;
-				spiTxBursts[3][loop] = POWERSTEP01_NOP;
+				spiTxBursts [0] [loop] = POWERSTEP01_NOP;
+				spiTxBursts [1] [loop] = POWERSTEP01_NOP;
+				spiTxBursts [2] [loop] = POWERSTEP01_NOP;
+				spiTxBursts [3] [loop] = POWERSTEP01_NOP;
 			}
 			switch (param & DAISY_CHAIN_COMMAND_MASK) {
 			case POWERSTEP01_GO_TO:
@@ -1251,27 +1204,26 @@ void Powerstep01_SendCommand(uint8_t deviceId, uint8_t param, uint32_t value) {
 			case POWERSTEP01_MOVE:
 			case POWERSTEP01_GO_UNTIL:
 			case POWERSTEP01_GO_UNTIL_ACT_CPY:
-				spiTxBursts[0][spiIndex] = param;
-				spiTxBursts[1][spiIndex] = (uint8_t) (value >> 16);
-				spiTxBursts[2][spiIndex] = (uint8_t) (value >> 8);
-				spiTxBursts[3][spiIndex] = (uint8_t) (value);
+				spiTxBursts [0] [spiIndex] = param;
+				spiTxBursts [1] [spiIndex] = (uint8_t) (value >> 16);
+				spiTxBursts [2] [spiIndex] = (uint8_t) (value >> 8);
+				spiTxBursts [3] [spiIndex] = (uint8_t) (value);
 				maxArgumentNbBytes = 3;
 				break;
 			default:
-				spiTxBursts[0][spiIndex] = POWERSTEP01_NOP;
-				spiTxBursts[1][spiIndex] = POWERSTEP01_NOP;
-				spiTxBursts[2][spiIndex] = POWERSTEP01_NOP;
-				spiTxBursts[3][spiIndex] = param;
+				spiTxBursts [0] [spiIndex] = POWERSTEP01_NOP;
+				spiTxBursts [1] [spiIndex] = POWERSTEP01_NOP;
+				spiTxBursts [2] [spiIndex] = POWERSTEP01_NOP;
+				spiTxBursts [3] [spiIndex] = param;
 			}
 			/* Disable interruption before checking */
 			/* pre-emption by ISR and SPI transfers*/
 			Powerstep01_Board_DisableIrq();
 			itDisable = TRUE;
 		} while (spiPreemtionByIsr); // check pre-emption by ISR
-		for (loop = POWERSTEP01_CMD_ARG_MAX_NB_BYTES - 1 - maxArgumentNbBytes;
-				loop < POWERSTEP01_CMD_ARG_MAX_NB_BYTES; loop++) {
-			Powerstep01_WriteBytes(&spiTxBursts[loop][0],
-					&spiRxBursts[loop][0]);
+		for (loop = POWERSTEP01_CMD_ARG_MAX_NB_BYTES - 1 - maxArgumentNbBytes; loop < POWERSTEP01_CMD_ARG_MAX_NB_BYTES;
+				loop++) {
+			Powerstep01_WriteBytes(&spiTxBursts [loop] [0], &spiRxBursts [loop] [0]);
 		}
 		/* re-enable Powerstep01_Board_EnableIrq after SPI transfers*/
 		Powerstep01_Board_EnableIrq();
@@ -1294,71 +1246,52 @@ void Powerstep01_SetRegisterToPredefinedValues(uint8_t deviceId) {
 	switch (deviceId) {
 	case 0:
 		cmVm = POWERSTEP01_CONF_PARAM_CM_VM_DEVICE_0;
-		Powerstep01_CmdSetParam(deviceId, POWERSTEP01_ACC,
-				Powerstep01_AccDec_Steps_s2_to_RegVal(
-				POWERSTEP01_CONF_PARAM_ACC_DEVICE_0));
-		Powerstep01_CmdSetParam(deviceId, POWERSTEP01_DEC,
-				Powerstep01_AccDec_Steps_s2_to_RegVal(
-				POWERSTEP01_CONF_PARAM_DEC_DEVICE_0));
-		Powerstep01_CmdSetParam(deviceId, POWERSTEP01_MAX_SPEED,
-				Powerstep01_MaxSpd_Steps_s_to_RegVal(
-				POWERSTEP01_CONF_PARAM_MAX_SPEED_DEVICE_0));
+		Powerstep01_CmdSetParam(deviceId, POWERSTEP01_ACC, Powerstep01_AccDec_Steps_s2_to_RegVal(
+		POWERSTEP01_CONF_PARAM_ACC_DEVICE_0));
+		Powerstep01_CmdSetParam(deviceId, POWERSTEP01_DEC, Powerstep01_AccDec_Steps_s2_to_RegVal(
+		POWERSTEP01_CONF_PARAM_DEC_DEVICE_0));
+		Powerstep01_CmdSetParam(deviceId, POWERSTEP01_MAX_SPEED, Powerstep01_MaxSpd_Steps_s_to_RegVal(
+		POWERSTEP01_CONF_PARAM_MAX_SPEED_DEVICE_0));
 		Powerstep01_CmdSetParam(deviceId, POWERSTEP01_MIN_SPEED,
-				POWERSTEP01_CONF_PARAM_LSPD_BIT_DEVICE_0
-						| Powerstep01_MinSpd_Steps_s_to_RegVal(
-						POWERSTEP01_CONF_PARAM_MIN_SPEED_DEVICE_0));
+		POWERSTEP01_CONF_PARAM_LSPD_BIT_DEVICE_0 | Powerstep01_MinSpd_Steps_s_to_RegVal(
+		POWERSTEP01_CONF_PARAM_MIN_SPEED_DEVICE_0));
 		Powerstep01_CmdSetParam(deviceId, POWERSTEP01_FS_SPD,
-				POWERSTEP01_CONF_PARAM_BOOST_MODE_DEVICE_0
-						| Powerstep01_FSSpd_Steps_s_to_RegVal(
-						POWERSTEP01_CONF_PARAM_FS_SPD_DEVICE_0));
-		Powerstep01_CmdSetParam(deviceId, POWERSTEP01_OCD_TH,
-				(uint8_t) POWERSTEP01_CONF_PARAM_OCD_TH_DEVICE_0);
+		POWERSTEP01_CONF_PARAM_BOOST_MODE_DEVICE_0 | Powerstep01_FSSpd_Steps_s_to_RegVal(
+		POWERSTEP01_CONF_PARAM_FS_SPD_DEVICE_0));
+		Powerstep01_CmdSetParam(deviceId, POWERSTEP01_OCD_TH, (uint8_t) POWERSTEP01_CONF_PARAM_OCD_TH_DEVICE_0);
 		Powerstep01_CmdSetParam(deviceId, POWERSTEP01_STEP_MODE,
-				(uint8_t) POWERSTEP01_CONF_PARAM_SYNC_MODE_DEVICE_0
-						| (uint8_t) POWERSTEP01_CONF_PARAM_CM_VM_DEVICE_0
+				(uint8_t) POWERSTEP01_CONF_PARAM_SYNC_MODE_DEVICE_0 | (uint8_t) POWERSTEP01_CONF_PARAM_CM_VM_DEVICE_0
 						| (uint8_t) POWERSTEP01_CONF_PARAM_STEP_MODE_DEVICE_0);
 		Powerstep01_CmdSetParam(deviceId, POWERSTEP01_ALARM_EN,
 		POWERSTEP01_CONF_PARAM_ALARM_EN_DEVICE_0);
 		Powerstep01_CmdSetParam(deviceId, POWERSTEP01_GATECFG1,
-				(uint16_t) POWERSTEP01_CONF_PARAM_IGATE_DEVICE_0
-						| (uint16_t) POWERSTEP01_CONF_PARAM_TCC_DEVICE_0
+				(uint16_t) POWERSTEP01_CONF_PARAM_IGATE_DEVICE_0 | (uint16_t) POWERSTEP01_CONF_PARAM_TCC_DEVICE_0
 						| (uint16_t) POWERSTEP01_CONF_PARAM_TBOOST_DEVICE_0
 						| (uint16_t) POWERSTEP01_CONF_PARAM_WD_EN_DEVICE_0);
 		Powerstep01_CmdSetParam(deviceId, POWERSTEP01_GATECFG2,
-				(uint16_t) POWERSTEP01_CONF_PARAM_TBLANK_DEVICE_0
-						| (uint16_t) POWERSTEP01_CONF_PARAM_TDT_DEVICE_0);
+				(uint16_t) POWERSTEP01_CONF_PARAM_TBLANK_DEVICE_0 | (uint16_t) POWERSTEP01_CONF_PARAM_TDT_DEVICE_0);
 		// Voltage mode
 		if (cmVm == POWERSTEP01_CM_VM_VOLTAGE) {
-			Powerstep01_CmdSetParam(deviceId, POWERSTEP01_INT_SPD,
-					Powerstep01_IntSpd_Steps_s_to_RegVal(
-					POWERSTEP01_CONF_PARAM_INT_SPD_DEVICE_0));
-			Powerstep01_CmdSetParam(deviceId, POWERSTEP01_K_THERM,
-					Powerstep01_KTherm_Comp_to_RegVal(
-					POWERSTEP01_CONF_PARAM_K_THERM_DEVICE_0));
-			Powerstep01_CmdSetParam(deviceId, POWERSTEP01_STALL_TH,
-					Powerstep01_StallOcd_Th_to_RegVal(
-					POWERSTEP01_CONF_PARAM_STALL_TH_DEVICE_0));
-			Powerstep01_CmdSetParam(deviceId, POWERSTEP01_KVAL_HOLD,
-					Powerstep01_Kval_Perc_to_RegVal(
-					POWERSTEP01_CONF_PARAM_KVAL_HOLD_DEVICE_0));
-			Powerstep01_CmdSetParam(deviceId, POWERSTEP01_KVAL_RUN,
-					Powerstep01_Kval_Perc_to_RegVal(
-					POWERSTEP01_CONF_PARAM_KVAL_RUN_DEVICE_0));
-			Powerstep01_CmdSetParam(deviceId, POWERSTEP01_KVAL_ACC,
-					Powerstep01_Kval_Perc_to_RegVal(
-					POWERSTEP01_CONF_PARAM_KVAL_ACC_DEVICE_0));
-			Powerstep01_CmdSetParam(deviceId, POWERSTEP01_KVAL_DEC,
-					Powerstep01_Kval_Perc_to_RegVal(
-					POWERSTEP01_CONF_PARAM_KVAL_DEC_DEVICE_0));
-			Powerstep01_CmdSetParam(deviceId, POWERSTEP01_ST_SLP,
-					Powerstep01_BEMFslope_Perc_to_RegVal(
-					POWERSTEP01_CONF_PARAM_ST_SLP_DEVICE_0));
-			Powerstep01_CmdSetParam(deviceId, POWERSTEP01_FN_SLP_ACC,
-					Powerstep01_BEMFslope_Perc_to_RegVal(
-					POWERSTEP01_CONF_PARAM_FN_SLP_ACC_DEVICE_0));
-			Powerstep01_CmdSetParam(deviceId, POWERSTEP01_FN_SLP_DEC,
-					Powerstep01_BEMFslope_Perc_to_RegVal(
-					POWERSTEP01_CONF_PARAM_FN_SLP_DEC_DEVICE_0));
+			Powerstep01_CmdSetParam(deviceId, POWERSTEP01_INT_SPD, Powerstep01_IntSpd_Steps_s_to_RegVal(
+			POWERSTEP01_CONF_PARAM_INT_SPD_DEVICE_0));
+			Powerstep01_CmdSetParam(deviceId, POWERSTEP01_K_THERM, Powerstep01_KTherm_Comp_to_RegVal(
+			POWERSTEP01_CONF_PARAM_K_THERM_DEVICE_0));
+			Powerstep01_CmdSetParam(deviceId, POWERSTEP01_STALL_TH, Powerstep01_StallOcd_Th_to_RegVal(
+			POWERSTEP01_CONF_PARAM_STALL_TH_DEVICE_0));
+			Powerstep01_CmdSetParam(deviceId, POWERSTEP01_KVAL_HOLD, Powerstep01_Kval_Perc_to_RegVal(
+			POWERSTEP01_CONF_PARAM_KVAL_HOLD_DEVICE_0));
+			Powerstep01_CmdSetParam(deviceId, POWERSTEP01_KVAL_RUN, Powerstep01_Kval_Perc_to_RegVal(
+			POWERSTEP01_CONF_PARAM_KVAL_RUN_DEVICE_0));
+			Powerstep01_CmdSetParam(deviceId, POWERSTEP01_KVAL_ACC, Powerstep01_Kval_Perc_to_RegVal(
+			POWERSTEP01_CONF_PARAM_KVAL_ACC_DEVICE_0));
+			Powerstep01_CmdSetParam(deviceId, POWERSTEP01_KVAL_DEC, Powerstep01_Kval_Perc_to_RegVal(
+			POWERSTEP01_CONF_PARAM_KVAL_DEC_DEVICE_0));
+			Powerstep01_CmdSetParam(deviceId, POWERSTEP01_ST_SLP, Powerstep01_BEMFslope_Perc_to_RegVal(
+			POWERSTEP01_CONF_PARAM_ST_SLP_DEVICE_0));
+			Powerstep01_CmdSetParam(deviceId, POWERSTEP01_FN_SLP_ACC, Powerstep01_BEMFslope_Perc_to_RegVal(
+			POWERSTEP01_CONF_PARAM_FN_SLP_ACC_DEVICE_0));
+			Powerstep01_CmdSetParam(deviceId, POWERSTEP01_FN_SLP_DEC, Powerstep01_BEMFslope_Perc_to_RegVal(
+			POWERSTEP01_CONF_PARAM_FN_SLP_DEC_DEVICE_0));
 			Powerstep01_CmdSetParam(deviceId, POWERSTEP01_CONFIG,
 					(uint16_t) POWERSTEP01_CONF_PARAM_CLOCK_SETTING_DEVICE_0
 							| (uint16_t) POWERSTEP01_CONF_PARAM_SW_MODE_DEVICE_0
@@ -1370,27 +1303,21 @@ void Powerstep01_SetRegisterToPredefinedValues(uint8_t deviceId) {
 							| (uint16_t) POWERSTEP01_CONF_PARAM_PWM_MUL_DEVICE_0);
 		} else {
 			// Current mode
-			Powerstep01_CmdSetParam(deviceId, POWERSTEP01_TVAL_HOLD,
-					Powerstep01_Tval_RefVoltage_to_RegVal(
-					POWERSTEP01_CONF_PARAM_TVAL_HOLD_DEVICE_0));
-			Powerstep01_CmdSetParam(deviceId, POWERSTEP01_TVAL_RUN,
-					Powerstep01_Tval_RefVoltage_to_RegVal(
-					POWERSTEP01_CONF_PARAM_TVAL_RUN_DEVICE_0));
-			Powerstep01_CmdSetParam(deviceId, POWERSTEP01_TVAL_ACC,
-					Powerstep01_Tval_RefVoltage_to_RegVal(
-					POWERSTEP01_CONF_PARAM_TVAL_ACC_DEVICE_0));
-			Powerstep01_CmdSetParam(deviceId, POWERSTEP01_TVAL_DEC,
-					Powerstep01_Tval_RefVoltage_to_RegVal(
-					POWERSTEP01_CONF_PARAM_TVAL_DEC_DEVICE_0));
+			Powerstep01_CmdSetParam(deviceId, POWERSTEP01_TVAL_HOLD, Powerstep01_Tval_RefVoltage_to_RegVal(
+			POWERSTEP01_CONF_PARAM_TVAL_HOLD_DEVICE_0));
+			Powerstep01_CmdSetParam(deviceId, POWERSTEP01_TVAL_RUN, Powerstep01_Tval_RefVoltage_to_RegVal(
+			POWERSTEP01_CONF_PARAM_TVAL_RUN_DEVICE_0));
+			Powerstep01_CmdSetParam(deviceId, POWERSTEP01_TVAL_ACC, Powerstep01_Tval_RefVoltage_to_RegVal(
+			POWERSTEP01_CONF_PARAM_TVAL_ACC_DEVICE_0));
+			Powerstep01_CmdSetParam(deviceId, POWERSTEP01_TVAL_DEC, Powerstep01_Tval_RefVoltage_to_RegVal(
+			POWERSTEP01_CONF_PARAM_TVAL_DEC_DEVICE_0));
 			Powerstep01_CmdSetParam(deviceId, POWERSTEP01_T_FAST,
 					(uint8_t) POWERSTEP01_CONF_PARAM_TOFF_FAST_DEVICE_0
 							| (uint8_t) POWERSTEP01_CONF_PARAM_FAST_STEP_DEVICE_0);
-			Powerstep01_CmdSetParam(deviceId, POWERSTEP01_TON_MIN,
-					Powerstep01_Tmin_Time_to_RegVal(
-					POWERSTEP01_CONF_PARAM_TON_MIN_DEVICE_0));
-			Powerstep01_CmdSetParam(deviceId, POWERSTEP01_TOFF_MIN,
-					Powerstep01_Tmin_Time_to_RegVal(
-					POWERSTEP01_CONF_PARAM_TOFF_MIN_DEVICE_0));
+			Powerstep01_CmdSetParam(deviceId, POWERSTEP01_TON_MIN, Powerstep01_Tmin_Time_to_RegVal(
+			POWERSTEP01_CONF_PARAM_TON_MIN_DEVICE_0));
+			Powerstep01_CmdSetParam(deviceId, POWERSTEP01_TOFF_MIN, Powerstep01_Tmin_Time_to_RegVal(
+			POWERSTEP01_CONF_PARAM_TOFF_MIN_DEVICE_0));
 			Powerstep01_CmdSetParam(deviceId, POWERSTEP01_CONFIG,
 					(uint16_t) POWERSTEP01_CONF_PARAM_CLOCK_SETTING_DEVICE_0
 							| (uint16_t) POWERSTEP01_CONF_PARAM_SW_MODE_DEVICE_0
@@ -1405,71 +1332,52 @@ void Powerstep01_SetRegisterToPredefinedValues(uint8_t deviceId) {
 #if (MAX_NUMBER_OF_DEVICES > 1)
 	case 1:
 		cmVm = POWERSTEP01_CONF_PARAM_CM_VM_DEVICE_1;
-		Powerstep01_CmdSetParam(deviceId, POWERSTEP01_ACC,
-				Powerstep01_AccDec_Steps_s2_to_RegVal(
-				POWERSTEP01_CONF_PARAM_ACC_DEVICE_1));
-		Powerstep01_CmdSetParam(deviceId, POWERSTEP01_DEC,
-				Powerstep01_AccDec_Steps_s2_to_RegVal(
-				POWERSTEP01_CONF_PARAM_DEC_DEVICE_1));
-		Powerstep01_CmdSetParam(deviceId, POWERSTEP01_MAX_SPEED,
-				Powerstep01_MaxSpd_Steps_s_to_RegVal(
-				POWERSTEP01_CONF_PARAM_MAX_SPEED_DEVICE_1));
+		Powerstep01_CmdSetParam(deviceId, POWERSTEP01_ACC, Powerstep01_AccDec_Steps_s2_to_RegVal(
+		POWERSTEP01_CONF_PARAM_ACC_DEVICE_1));
+		Powerstep01_CmdSetParam(deviceId, POWERSTEP01_DEC, Powerstep01_AccDec_Steps_s2_to_RegVal(
+		POWERSTEP01_CONF_PARAM_DEC_DEVICE_1));
+		Powerstep01_CmdSetParam(deviceId, POWERSTEP01_MAX_SPEED, Powerstep01_MaxSpd_Steps_s_to_RegVal(
+		POWERSTEP01_CONF_PARAM_MAX_SPEED_DEVICE_1));
 		Powerstep01_CmdSetParam(deviceId, POWERSTEP01_MIN_SPEED,
-				POWERSTEP01_CONF_PARAM_LSPD_BIT_DEVICE_1
-						| Powerstep01_MinSpd_Steps_s_to_RegVal(
-						POWERSTEP01_CONF_PARAM_MIN_SPEED_DEVICE_1));
+		POWERSTEP01_CONF_PARAM_LSPD_BIT_DEVICE_1 | Powerstep01_MinSpd_Steps_s_to_RegVal(
+		POWERSTEP01_CONF_PARAM_MIN_SPEED_DEVICE_1));
 		Powerstep01_CmdSetParam(deviceId, POWERSTEP01_FS_SPD,
-				POWERSTEP01_CONF_PARAM_BOOST_MODE_DEVICE_1
-						| Powerstep01_FSSpd_Steps_s_to_RegVal(
-						POWERSTEP01_CONF_PARAM_FS_SPD_DEVICE_1));
-		Powerstep01_CmdSetParam(deviceId, POWERSTEP01_OCD_TH,
-				(uint8_t) POWERSTEP01_CONF_PARAM_OCD_TH_DEVICE_1);
+		POWERSTEP01_CONF_PARAM_BOOST_MODE_DEVICE_1 | Powerstep01_FSSpd_Steps_s_to_RegVal(
+		POWERSTEP01_CONF_PARAM_FS_SPD_DEVICE_1));
+		Powerstep01_CmdSetParam(deviceId, POWERSTEP01_OCD_TH, (uint8_t) POWERSTEP01_CONF_PARAM_OCD_TH_DEVICE_1);
 		Powerstep01_CmdSetParam(deviceId, POWERSTEP01_STEP_MODE,
-				(uint8_t) POWERSTEP01_CONF_PARAM_SYNC_MODE_DEVICE_1
-						| (uint8_t) POWERSTEP01_CONF_PARAM_CM_VM_DEVICE_1
+				(uint8_t) POWERSTEP01_CONF_PARAM_SYNC_MODE_DEVICE_1 | (uint8_t) POWERSTEP01_CONF_PARAM_CM_VM_DEVICE_1
 						| (uint8_t) POWERSTEP01_CONF_PARAM_STEP_MODE_DEVICE_1);
 		Powerstep01_CmdSetParam(deviceId, POWERSTEP01_ALARM_EN,
 		POWERSTEP01_CONF_PARAM_ALARM_EN_DEVICE_1);
 		Powerstep01_CmdSetParam(deviceId, POWERSTEP01_GATECFG1,
-				(uint16_t) POWERSTEP01_CONF_PARAM_IGATE_DEVICE_1
-						| (uint16_t) POWERSTEP01_CONF_PARAM_TCC_DEVICE_1
+				(uint16_t) POWERSTEP01_CONF_PARAM_IGATE_DEVICE_1 | (uint16_t) POWERSTEP01_CONF_PARAM_TCC_DEVICE_1
 						| (uint16_t) POWERSTEP01_CONF_PARAM_TBOOST_DEVICE_1
 						| (uint16_t) POWERSTEP01_CONF_PARAM_WD_EN_DEVICE_1);
 		Powerstep01_CmdSetParam(deviceId, POWERSTEP01_GATECFG2,
-				(uint16_t) POWERSTEP01_CONF_PARAM_TBLANK_DEVICE_1
-						| (uint16_t) POWERSTEP01_CONF_PARAM_TDT_DEVICE_1);
+				(uint16_t) POWERSTEP01_CONF_PARAM_TBLANK_DEVICE_1 | (uint16_t) POWERSTEP01_CONF_PARAM_TDT_DEVICE_1);
 		// Voltage mode
 		if (cmVm == POWERSTEP01_CM_VM_VOLTAGE) {
-			Powerstep01_CmdSetParam(deviceId, POWERSTEP01_INT_SPD,
-					Powerstep01_IntSpd_Steps_s_to_RegVal(
-					POWERSTEP01_CONF_PARAM_INT_SPD_DEVICE_1));
-			Powerstep01_CmdSetParam(deviceId, POWERSTEP01_K_THERM,
-					Powerstep01_KTherm_Comp_to_RegVal(
-					POWERSTEP01_CONF_PARAM_K_THERM_DEVICE_1));
-			Powerstep01_CmdSetParam(deviceId, POWERSTEP01_STALL_TH,
-					Powerstep01_StallOcd_Th_to_RegVal(
-					POWERSTEP01_CONF_PARAM_STALL_TH_DEVICE_1));
-			Powerstep01_CmdSetParam(deviceId, POWERSTEP01_KVAL_HOLD,
-					Powerstep01_Kval_Perc_to_RegVal(
-					POWERSTEP01_CONF_PARAM_KVAL_HOLD_DEVICE_1));
-			Powerstep01_CmdSetParam(deviceId, POWERSTEP01_KVAL_RUN,
-					Powerstep01_Kval_Perc_to_RegVal(
-					POWERSTEP01_CONF_PARAM_KVAL_RUN_DEVICE_1));
-			Powerstep01_CmdSetParam(deviceId, POWERSTEP01_KVAL_ACC,
-					Powerstep01_Kval_Perc_to_RegVal(
-					POWERSTEP01_CONF_PARAM_KVAL_ACC_DEVICE_1));
-			Powerstep01_CmdSetParam(deviceId, POWERSTEP01_KVAL_DEC,
-					Powerstep01_Kval_Perc_to_RegVal(
-					POWERSTEP01_CONF_PARAM_KVAL_DEC_DEVICE_1));
-			Powerstep01_CmdSetParam(deviceId, POWERSTEP01_ST_SLP,
-					Powerstep01_BEMFslope_Perc_to_RegVal(
-					POWERSTEP01_CONF_PARAM_ST_SLP_DEVICE_1));
-			Powerstep01_CmdSetParam(deviceId, POWERSTEP01_FN_SLP_ACC,
-					Powerstep01_BEMFslope_Perc_to_RegVal(
-					POWERSTEP01_CONF_PARAM_FN_SLP_ACC_DEVICE_1));
-			Powerstep01_CmdSetParam(deviceId, POWERSTEP01_FN_SLP_DEC,
-					Powerstep01_BEMFslope_Perc_to_RegVal(
-					POWERSTEP01_CONF_PARAM_FN_SLP_DEC_DEVICE_1));
+			Powerstep01_CmdSetParam(deviceId, POWERSTEP01_INT_SPD, Powerstep01_IntSpd_Steps_s_to_RegVal(
+			POWERSTEP01_CONF_PARAM_INT_SPD_DEVICE_1));
+			Powerstep01_CmdSetParam(deviceId, POWERSTEP01_K_THERM, Powerstep01_KTherm_Comp_to_RegVal(
+			POWERSTEP01_CONF_PARAM_K_THERM_DEVICE_1));
+			Powerstep01_CmdSetParam(deviceId, POWERSTEP01_STALL_TH, Powerstep01_StallOcd_Th_to_RegVal(
+			POWERSTEP01_CONF_PARAM_STALL_TH_DEVICE_1));
+			Powerstep01_CmdSetParam(deviceId, POWERSTEP01_KVAL_HOLD, Powerstep01_Kval_Perc_to_RegVal(
+			POWERSTEP01_CONF_PARAM_KVAL_HOLD_DEVICE_1));
+			Powerstep01_CmdSetParam(deviceId, POWERSTEP01_KVAL_RUN, Powerstep01_Kval_Perc_to_RegVal(
+			POWERSTEP01_CONF_PARAM_KVAL_RUN_DEVICE_1));
+			Powerstep01_CmdSetParam(deviceId, POWERSTEP01_KVAL_ACC, Powerstep01_Kval_Perc_to_RegVal(
+			POWERSTEP01_CONF_PARAM_KVAL_ACC_DEVICE_1));
+			Powerstep01_CmdSetParam(deviceId, POWERSTEP01_KVAL_DEC, Powerstep01_Kval_Perc_to_RegVal(
+			POWERSTEP01_CONF_PARAM_KVAL_DEC_DEVICE_1));
+			Powerstep01_CmdSetParam(deviceId, POWERSTEP01_ST_SLP, Powerstep01_BEMFslope_Perc_to_RegVal(
+			POWERSTEP01_CONF_PARAM_ST_SLP_DEVICE_1));
+			Powerstep01_CmdSetParam(deviceId, POWERSTEP01_FN_SLP_ACC, Powerstep01_BEMFslope_Perc_to_RegVal(
+			POWERSTEP01_CONF_PARAM_FN_SLP_ACC_DEVICE_1));
+			Powerstep01_CmdSetParam(deviceId, POWERSTEP01_FN_SLP_DEC, Powerstep01_BEMFslope_Perc_to_RegVal(
+			POWERSTEP01_CONF_PARAM_FN_SLP_DEC_DEVICE_1));
 			Powerstep01_CmdSetParam(deviceId, POWERSTEP01_CONFIG,
 					(uint16_t) POWERSTEP01_CONF_PARAM_CLOCK_SETTING_DEVICE_1
 							| (uint16_t) POWERSTEP01_CONF_PARAM_SW_MODE_DEVICE_1
@@ -1481,27 +1389,21 @@ void Powerstep01_SetRegisterToPredefinedValues(uint8_t deviceId) {
 							| (uint16_t) POWERSTEP01_CONF_PARAM_PWM_MUL_DEVICE_1);
 		} else {
 			// Current mode
-			Powerstep01_CmdSetParam(deviceId, POWERSTEP01_TVAL_HOLD,
-					Powerstep01_Tval_RefVoltage_to_RegVal(
-					POWERSTEP01_CONF_PARAM_TVAL_HOLD_DEVICE_1));
-			Powerstep01_CmdSetParam(deviceId, POWERSTEP01_TVAL_RUN,
-					Powerstep01_Tval_RefVoltage_to_RegVal(
-					POWERSTEP01_CONF_PARAM_TVAL_RUN_DEVICE_1));
-			Powerstep01_CmdSetParam(deviceId, POWERSTEP01_TVAL_ACC,
-					Powerstep01_Tval_RefVoltage_to_RegVal(
-					POWERSTEP01_CONF_PARAM_TVAL_ACC_DEVICE_1));
-			Powerstep01_CmdSetParam(deviceId, POWERSTEP01_TVAL_DEC,
-					Powerstep01_Tval_RefVoltage_to_RegVal(
-					POWERSTEP01_CONF_PARAM_TVAL_DEC_DEVICE_1));
+			Powerstep01_CmdSetParam(deviceId, POWERSTEP01_TVAL_HOLD, Powerstep01_Tval_RefVoltage_to_RegVal(
+			POWERSTEP01_CONF_PARAM_TVAL_HOLD_DEVICE_1));
+			Powerstep01_CmdSetParam(deviceId, POWERSTEP01_TVAL_RUN, Powerstep01_Tval_RefVoltage_to_RegVal(
+			POWERSTEP01_CONF_PARAM_TVAL_RUN_DEVICE_1));
+			Powerstep01_CmdSetParam(deviceId, POWERSTEP01_TVAL_ACC, Powerstep01_Tval_RefVoltage_to_RegVal(
+			POWERSTEP01_CONF_PARAM_TVAL_ACC_DEVICE_1));
+			Powerstep01_CmdSetParam(deviceId, POWERSTEP01_TVAL_DEC, Powerstep01_Tval_RefVoltage_to_RegVal(
+			POWERSTEP01_CONF_PARAM_TVAL_DEC_DEVICE_1));
 			Powerstep01_CmdSetParam(deviceId, POWERSTEP01_T_FAST,
 					(uint8_t) POWERSTEP01_CONF_PARAM_TOFF_FAST_DEVICE_1
 							| (uint8_t) POWERSTEP01_CONF_PARAM_FAST_STEP_DEVICE_1);
-			Powerstep01_CmdSetParam(deviceId, POWERSTEP01_TON_MIN,
-					Powerstep01_Tmin_Time_to_RegVal(
-					POWERSTEP01_CONF_PARAM_TON_MIN_DEVICE_1));
-			Powerstep01_CmdSetParam(deviceId, POWERSTEP01_TOFF_MIN,
-					Powerstep01_Tmin_Time_to_RegVal(
-					POWERSTEP01_CONF_PARAM_TOFF_MIN_DEVICE_1));
+			Powerstep01_CmdSetParam(deviceId, POWERSTEP01_TON_MIN, Powerstep01_Tmin_Time_to_RegVal(
+			POWERSTEP01_CONF_PARAM_TON_MIN_DEVICE_1));
+			Powerstep01_CmdSetParam(deviceId, POWERSTEP01_TOFF_MIN, Powerstep01_Tmin_Time_to_RegVal(
+			POWERSTEP01_CONF_PARAM_TOFF_MIN_DEVICE_1));
 			Powerstep01_CmdSetParam(deviceId, POWERSTEP01_CONFIG,
 					(uint16_t) POWERSTEP01_CONF_PARAM_CLOCK_SETTING_DEVICE_1
 							| (uint16_t) POWERSTEP01_CONF_PARAM_SW_MODE_DEVICE_1
@@ -1517,71 +1419,52 @@ void Powerstep01_SetRegisterToPredefinedValues(uint8_t deviceId) {
 #if (MAX_NUMBER_OF_DEVICES > 2)
 	case 2:
 		cmVm = POWERSTEP01_CONF_PARAM_CM_VM_DEVICE_2;
-		Powerstep01_CmdSetParam(deviceId, POWERSTEP01_ACC,
-				Powerstep01_AccDec_Steps_s2_to_RegVal(
-				POWERSTEP01_CONF_PARAM_ACC_DEVICE_2));
-		Powerstep01_CmdSetParam(deviceId, POWERSTEP01_DEC,
-				Powerstep01_AccDec_Steps_s2_to_RegVal(
-				POWERSTEP01_CONF_PARAM_DEC_DEVICE_2));
-		Powerstep01_CmdSetParam(deviceId, POWERSTEP01_MAX_SPEED,
-				Powerstep01_MaxSpd_Steps_s_to_RegVal(
-				POWERSTEP01_CONF_PARAM_MAX_SPEED_DEVICE_2));
+		Powerstep01_CmdSetParam(deviceId, POWERSTEP01_ACC, Powerstep01_AccDec_Steps_s2_to_RegVal(
+		POWERSTEP01_CONF_PARAM_ACC_DEVICE_2));
+		Powerstep01_CmdSetParam(deviceId, POWERSTEP01_DEC, Powerstep01_AccDec_Steps_s2_to_RegVal(
+		POWERSTEP01_CONF_PARAM_DEC_DEVICE_2));
+		Powerstep01_CmdSetParam(deviceId, POWERSTEP01_MAX_SPEED, Powerstep01_MaxSpd_Steps_s_to_RegVal(
+		POWERSTEP01_CONF_PARAM_MAX_SPEED_DEVICE_2));
 		Powerstep01_CmdSetParam(deviceId, POWERSTEP01_MIN_SPEED,
-				POWERSTEP01_CONF_PARAM_LSPD_BIT_DEVICE_2
-						| Powerstep01_MinSpd_Steps_s_to_RegVal(
-						POWERSTEP01_CONF_PARAM_MIN_SPEED_DEVICE_2));
+		POWERSTEP01_CONF_PARAM_LSPD_BIT_DEVICE_2 | Powerstep01_MinSpd_Steps_s_to_RegVal(
+		POWERSTEP01_CONF_PARAM_MIN_SPEED_DEVICE_2));
 		Powerstep01_CmdSetParam(deviceId, POWERSTEP01_FS_SPD,
-				POWERSTEP01_CONF_PARAM_BOOST_MODE_DEVICE_2
-						| Powerstep01_FSSpd_Steps_s_to_RegVal(
-						POWERSTEP01_CONF_PARAM_FS_SPD_DEVICE_2));
-		Powerstep01_CmdSetParam(deviceId, POWERSTEP01_OCD_TH,
-				(uint8_t) POWERSTEP01_CONF_PARAM_OCD_TH_DEVICE_2);
+		POWERSTEP01_CONF_PARAM_BOOST_MODE_DEVICE_2 | Powerstep01_FSSpd_Steps_s_to_RegVal(
+		POWERSTEP01_CONF_PARAM_FS_SPD_DEVICE_2));
+		Powerstep01_CmdSetParam(deviceId, POWERSTEP01_OCD_TH, (uint8_t) POWERSTEP01_CONF_PARAM_OCD_TH_DEVICE_2);
 		Powerstep01_CmdSetParam(deviceId, POWERSTEP01_STEP_MODE,
-				(uint8_t) POWERSTEP01_CONF_PARAM_SYNC_MODE_DEVICE_2
-						| (uint8_t) POWERSTEP01_CONF_PARAM_CM_VM_DEVICE_2
+				(uint8_t) POWERSTEP01_CONF_PARAM_SYNC_MODE_DEVICE_2 | (uint8_t) POWERSTEP01_CONF_PARAM_CM_VM_DEVICE_2
 						| (uint8_t) POWERSTEP01_CONF_PARAM_STEP_MODE_DEVICE_2);
 		Powerstep01_CmdSetParam(deviceId, POWERSTEP01_ALARM_EN,
 		POWERSTEP01_CONF_PARAM_ALARM_EN_DEVICE_2);
 		Powerstep01_CmdSetParam(deviceId, POWERSTEP01_GATECFG1,
-				(uint16_t) POWERSTEP01_CONF_PARAM_IGATE_DEVICE_2
-						| (uint16_t) POWERSTEP01_CONF_PARAM_TCC_DEVICE_2
+				(uint16_t) POWERSTEP01_CONF_PARAM_IGATE_DEVICE_2 | (uint16_t) POWERSTEP01_CONF_PARAM_TCC_DEVICE_2
 						| (uint16_t) POWERSTEP01_CONF_PARAM_TBOOST_DEVICE_2
 						| (uint16_t) POWERSTEP01_CONF_PARAM_WD_EN_DEVICE_2);
 		Powerstep01_CmdSetParam(deviceId, POWERSTEP01_GATECFG2,
-				(uint16_t) POWERSTEP01_CONF_PARAM_TBLANK_DEVICE_2
-						| (uint16_t) POWERSTEP01_CONF_PARAM_TDT_DEVICE_2);
+				(uint16_t) POWERSTEP01_CONF_PARAM_TBLANK_DEVICE_2 | (uint16_t) POWERSTEP01_CONF_PARAM_TDT_DEVICE_2);
 		// Voltage mode
 		if (cmVm == POWERSTEP01_CM_VM_VOLTAGE) {
-			Powerstep01_CmdSetParam(deviceId, POWERSTEP01_INT_SPD,
-					Powerstep01_IntSpd_Steps_s_to_RegVal(
-					POWERSTEP01_CONF_PARAM_INT_SPD_DEVICE_2));
-			Powerstep01_CmdSetParam(deviceId, POWERSTEP01_K_THERM,
-					Powerstep01_KTherm_Comp_to_RegVal(
-					POWERSTEP01_CONF_PARAM_K_THERM_DEVICE_2));
-			Powerstep01_CmdSetParam(deviceId, POWERSTEP01_STALL_TH,
-					Powerstep01_StallOcd_Th_to_RegVal(
-					POWERSTEP01_CONF_PARAM_STALL_TH_DEVICE_2));
-			Powerstep01_CmdSetParam(deviceId, POWERSTEP01_KVAL_HOLD,
-					Powerstep01_Kval_Perc_to_RegVal(
-					POWERSTEP01_CONF_PARAM_KVAL_HOLD_DEVICE_2));
-			Powerstep01_CmdSetParam(deviceId, POWERSTEP01_KVAL_RUN,
-					Powerstep01_Kval_Perc_to_RegVal(
-					POWERSTEP01_CONF_PARAM_KVAL_RUN_DEVICE_2));
-			Powerstep01_CmdSetParam(deviceId, POWERSTEP01_KVAL_ACC,
-					Powerstep01_Kval_Perc_to_RegVal(
-					POWERSTEP01_CONF_PARAM_KVAL_ACC_DEVICE_2));
-			Powerstep01_CmdSetParam(deviceId, POWERSTEP01_KVAL_DEC,
-					Powerstep01_Kval_Perc_to_RegVal(
-					POWERSTEP01_CONF_PARAM_KVAL_DEC_DEVICE_2));
-			Powerstep01_CmdSetParam(deviceId, POWERSTEP01_ST_SLP,
-					Powerstep01_BEMFslope_Perc_to_RegVal(
-					POWERSTEP01_CONF_PARAM_ST_SLP_DEVICE_2));
-			Powerstep01_CmdSetParam(deviceId, POWERSTEP01_FN_SLP_ACC,
-					Powerstep01_BEMFslope_Perc_to_RegVal(
-					POWERSTEP01_CONF_PARAM_FN_SLP_ACC_DEVICE_2));
-			Powerstep01_CmdSetParam(deviceId, POWERSTEP01_FN_SLP_DEC,
-					Powerstep01_BEMFslope_Perc_to_RegVal(
-					POWERSTEP01_CONF_PARAM_FN_SLP_DEC_DEVICE_2));
+			Powerstep01_CmdSetParam(deviceId, POWERSTEP01_INT_SPD, Powerstep01_IntSpd_Steps_s_to_RegVal(
+			POWERSTEP01_CONF_PARAM_INT_SPD_DEVICE_2));
+			Powerstep01_CmdSetParam(deviceId, POWERSTEP01_K_THERM, Powerstep01_KTherm_Comp_to_RegVal(
+			POWERSTEP01_CONF_PARAM_K_THERM_DEVICE_2));
+			Powerstep01_CmdSetParam(deviceId, POWERSTEP01_STALL_TH, Powerstep01_StallOcd_Th_to_RegVal(
+			POWERSTEP01_CONF_PARAM_STALL_TH_DEVICE_2));
+			Powerstep01_CmdSetParam(deviceId, POWERSTEP01_KVAL_HOLD, Powerstep01_Kval_Perc_to_RegVal(
+			POWERSTEP01_CONF_PARAM_KVAL_HOLD_DEVICE_2));
+			Powerstep01_CmdSetParam(deviceId, POWERSTEP01_KVAL_RUN, Powerstep01_Kval_Perc_to_RegVal(
+			POWERSTEP01_CONF_PARAM_KVAL_RUN_DEVICE_2));
+			Powerstep01_CmdSetParam(deviceId, POWERSTEP01_KVAL_ACC, Powerstep01_Kval_Perc_to_RegVal(
+			POWERSTEP01_CONF_PARAM_KVAL_ACC_DEVICE_2));
+			Powerstep01_CmdSetParam(deviceId, POWERSTEP01_KVAL_DEC, Powerstep01_Kval_Perc_to_RegVal(
+			POWERSTEP01_CONF_PARAM_KVAL_DEC_DEVICE_2));
+			Powerstep01_CmdSetParam(deviceId, POWERSTEP01_ST_SLP, Powerstep01_BEMFslope_Perc_to_RegVal(
+			POWERSTEP01_CONF_PARAM_ST_SLP_DEVICE_2));
+			Powerstep01_CmdSetParam(deviceId, POWERSTEP01_FN_SLP_ACC, Powerstep01_BEMFslope_Perc_to_RegVal(
+			POWERSTEP01_CONF_PARAM_FN_SLP_ACC_DEVICE_2));
+			Powerstep01_CmdSetParam(deviceId, POWERSTEP01_FN_SLP_DEC, Powerstep01_BEMFslope_Perc_to_RegVal(
+			POWERSTEP01_CONF_PARAM_FN_SLP_DEC_DEVICE_2));
 			Powerstep01_CmdSetParam(deviceId, POWERSTEP01_CONFIG,
 					(uint16_t) POWERSTEP01_CONF_PARAM_CLOCK_SETTING_DEVICE_2
 							| (uint16_t) POWERSTEP01_CONF_PARAM_SW_MODE_DEVICE_2
@@ -1593,27 +1476,21 @@ void Powerstep01_SetRegisterToPredefinedValues(uint8_t deviceId) {
 							| (uint16_t) POWERSTEP01_CONF_PARAM_PWM_MUL_DEVICE_2);
 		} else {
 			// Current mode
-			Powerstep01_CmdSetParam(deviceId, POWERSTEP01_TVAL_HOLD,
-					Powerstep01_Tval_RefVoltage_to_RegVal(
-					POWERSTEP01_CONF_PARAM_TVAL_HOLD_DEVICE_2));
-			Powerstep01_CmdSetParam(deviceId, POWERSTEP01_TVAL_RUN,
-					Powerstep01_Tval_RefVoltage_to_RegVal(
-					POWERSTEP01_CONF_PARAM_TVAL_RUN_DEVICE_2));
-			Powerstep01_CmdSetParam(deviceId, POWERSTEP01_TVAL_ACC,
-					Powerstep01_Tval_RefVoltage_to_RegVal(
-					POWERSTEP01_CONF_PARAM_TVAL_ACC_DEVICE_2));
-			Powerstep01_CmdSetParam(deviceId, POWERSTEP01_TVAL_DEC,
-					Powerstep01_Tval_RefVoltage_to_RegVal(
-					POWERSTEP01_CONF_PARAM_TVAL_DEC_DEVICE_2));
+			Powerstep01_CmdSetParam(deviceId, POWERSTEP01_TVAL_HOLD, Powerstep01_Tval_RefVoltage_to_RegVal(
+			POWERSTEP01_CONF_PARAM_TVAL_HOLD_DEVICE_2));
+			Powerstep01_CmdSetParam(deviceId, POWERSTEP01_TVAL_RUN, Powerstep01_Tval_RefVoltage_to_RegVal(
+			POWERSTEP01_CONF_PARAM_TVAL_RUN_DEVICE_2));
+			Powerstep01_CmdSetParam(deviceId, POWERSTEP01_TVAL_ACC, Powerstep01_Tval_RefVoltage_to_RegVal(
+			POWERSTEP01_CONF_PARAM_TVAL_ACC_DEVICE_2));
+			Powerstep01_CmdSetParam(deviceId, POWERSTEP01_TVAL_DEC, Powerstep01_Tval_RefVoltage_to_RegVal(
+			POWERSTEP01_CONF_PARAM_TVAL_DEC_DEVICE_2));
 			Powerstep01_CmdSetParam(deviceId, POWERSTEP01_T_FAST,
 					(uint8_t) POWERSTEP01_CONF_PARAM_TOFF_FAST_DEVICE_2
 							| (uint8_t) POWERSTEP01_CONF_PARAM_FAST_STEP_DEVICE_2);
-			Powerstep01_CmdSetParam(deviceId, POWERSTEP01_TON_MIN,
-					Powerstep01_Tmin_Time_to_RegVal(
-					POWERSTEP01_CONF_PARAM_TON_MIN_DEVICE_2));
-			Powerstep01_CmdSetParam(deviceId, POWERSTEP01_TOFF_MIN,
-					Powerstep01_Tmin_Time_to_RegVal(
-					POWERSTEP01_CONF_PARAM_TOFF_MIN_DEVICE_2));
+			Powerstep01_CmdSetParam(deviceId, POWERSTEP01_TON_MIN, Powerstep01_Tmin_Time_to_RegVal(
+			POWERSTEP01_CONF_PARAM_TON_MIN_DEVICE_2));
+			Powerstep01_CmdSetParam(deviceId, POWERSTEP01_TOFF_MIN, Powerstep01_Tmin_Time_to_RegVal(
+			POWERSTEP01_CONF_PARAM_TOFF_MIN_DEVICE_2));
 			Powerstep01_CmdSetParam(deviceId, POWERSTEP01_CONFIG,
 					(uint16_t) POWERSTEP01_CONF_PARAM_CLOCK_SETTING_DEVICE_2
 							| (uint16_t) POWERSTEP01_CONF_PARAM_SW_MODE_DEVICE_2
@@ -1638,8 +1515,7 @@ void Powerstep01_SetRegisterToPredefinedValues(uint8_t deviceId) {
  * parameters
  * @retval None
  **********************************************************/
-void Powerstep01_SetDeviceParamsToGivenValues(uint8_t deviceId,
-		powerstep01_Init_u_t *initPrm) {
+void Powerstep01_SetDeviceParamsToGivenValues(uint8_t deviceId, powerstep01_Init_u_t *initPrm) {
 	Powerstep01_CmdSetParam(deviceId, POWERSTEP01_ABS_POS, 0);
 	Powerstep01_CmdSetParam(deviceId, POWERSTEP01_EL_POS, 0);
 	Powerstep01_CmdSetParam(deviceId, POWERSTEP01_MARK, 0);
@@ -1650,61 +1526,42 @@ void Powerstep01_SetDeviceParamsToGivenValues(uint8_t deviceId,
 	Powerstep01_CmdSetParam(deviceId, POWERSTEP01_MAX_SPEED,
 			Powerstep01_MaxSpd_Steps_s_to_RegVal(initPrm->cm.cp.maxSpeed));
 	Powerstep01_CmdSetParam(deviceId, POWERSTEP01_MIN_SPEED,
-			initPrm->cm.cp.lowSpeedOptimization
-					| Powerstep01_MaxSpd_Steps_s_to_RegVal(
-							initPrm->cm.cp.minSpeed));
+			initPrm->cm.cp.lowSpeedOptimization | Powerstep01_MaxSpd_Steps_s_to_RegVal(initPrm->cm.cp.minSpeed));
 	Powerstep01_CmdSetParam(deviceId, POWERSTEP01_FS_SPD,
-			initPrm->cm.cp.boostMode
-					| Powerstep01_FSSpd_Steps_s_to_RegVal(
-							initPrm->cm.cp.fullStepSpeed));
+			initPrm->cm.cp.boostMode | Powerstep01_FSSpd_Steps_s_to_RegVal(initPrm->cm.cp.fullStepSpeed));
 	Powerstep01_CmdSetParam(deviceId, POWERSTEP01_OCD_TH,
 			Powerstep01_StallOcd_Th_to_RegVal(initPrm->cm.cp.ocdThreshold));
 	Powerstep01_CmdSetParam(deviceId, POWERSTEP01_STEP_MODE,
-			(uint8_t) initPrm->cm.cp.syncClockSelection
-					| (uint8_t) initPrm->cm.cp.cmVmSelection
+			(uint8_t) initPrm->cm.cp.syncClockSelection | (uint8_t) initPrm->cm.cp.cmVmSelection
 					| (uint8_t) (uint8_t) initPrm->cm.cp.stepMode);
-	Powerstep01_CmdSetParam(deviceId, POWERSTEP01_ALARM_EN,
-			initPrm->cm.cp.alarmsSelection);
+	Powerstep01_CmdSetParam(deviceId, POWERSTEP01_ALARM_EN, initPrm->cm.cp.alarmsSelection);
 	Powerstep01_CmdSetParam(deviceId, POWERSTEP01_GATECFG1,
-			(uint16_t) initPrm->cm.cp.iGate | (uint16_t) initPrm->cm.cp.tcc
-					| (uint16_t) initPrm->cm.cp.tBoost
+			(uint16_t) initPrm->cm.cp.iGate | (uint16_t) initPrm->cm.cp.tcc | (uint16_t) initPrm->cm.cp.tBoost
 					| (uint16_t) initPrm->cm.cp.wdEn);
 	Powerstep01_CmdSetParam(deviceId, POWERSTEP01_GATECFG2,
 			(uint16_t) initPrm->cm.cp.tBlank | (uint16_t) initPrm->cm.cp.tdt);
 	if (initPrm->cm.cp.cmVmSelection == POWERSTEP01_CM_VM_VOLTAGE) {
 		//Voltage mode
 		Powerstep01_CmdSetParam(deviceId, POWERSTEP01_INT_SPD,
-				Powerstep01_IntSpd_Steps_s_to_RegVal(
-						initPrm->vm.intersectSpeed));
+				Powerstep01_IntSpd_Steps_s_to_RegVal(initPrm->vm.intersectSpeed));
 		Powerstep01_CmdSetParam(deviceId, POWERSTEP01_K_THERM,
-				Powerstep01_KTherm_Comp_to_RegVal(
-						initPrm->vm.thermalCompensationFactor));
+				Powerstep01_KTherm_Comp_to_RegVal(initPrm->vm.thermalCompensationFactor));
 		Powerstep01_CmdSetParam(deviceId, POWERSTEP01_STALL_TH,
 				Powerstep01_StallOcd_Th_to_RegVal(initPrm->vm.stallThreshold));
-		Powerstep01_CmdSetParam(deviceId, POWERSTEP01_KVAL_HOLD,
-				Powerstep01_Kval_Perc_to_RegVal(initPrm->vm.kvalHold));
-		Powerstep01_CmdSetParam(deviceId, POWERSTEP01_KVAL_RUN,
-				Powerstep01_Kval_Perc_to_RegVal(initPrm->vm.kvalRun));
-		Powerstep01_CmdSetParam(deviceId, POWERSTEP01_KVAL_ACC,
-				Powerstep01_Kval_Perc_to_RegVal(initPrm->vm.kvalAcc));
-		Powerstep01_CmdSetParam(deviceId, POWERSTEP01_KVAL_DEC,
-				Powerstep01_Kval_Perc_to_RegVal(initPrm->vm.kvalDec));
+		Powerstep01_CmdSetParam(deviceId, POWERSTEP01_KVAL_HOLD, Powerstep01_Kval_Perc_to_RegVal(initPrm->vm.kvalHold));
+		Powerstep01_CmdSetParam(deviceId, POWERSTEP01_KVAL_RUN, Powerstep01_Kval_Perc_to_RegVal(initPrm->vm.kvalRun));
+		Powerstep01_CmdSetParam(deviceId, POWERSTEP01_KVAL_ACC, Powerstep01_Kval_Perc_to_RegVal(initPrm->vm.kvalAcc));
+		Powerstep01_CmdSetParam(deviceId, POWERSTEP01_KVAL_DEC, Powerstep01_Kval_Perc_to_RegVal(initPrm->vm.kvalDec));
 		Powerstep01_CmdSetParam(deviceId, POWERSTEP01_ST_SLP,
 				Powerstep01_BEMFslope_Perc_to_RegVal(initPrm->vm.startSlope));
 		Powerstep01_CmdSetParam(deviceId, POWERSTEP01_FN_SLP_ACC,
-				Powerstep01_BEMFslope_Perc_to_RegVal(
-						initPrm->vm.accelerationFinalSlope));
+				Powerstep01_BEMFslope_Perc_to_RegVal(initPrm->vm.accelerationFinalSlope));
 		Powerstep01_CmdSetParam(deviceId, POWERSTEP01_FN_SLP_DEC,
-				Powerstep01_BEMFslope_Perc_to_RegVal(
-						initPrm->vm.decelerationFinalSlope));
+				Powerstep01_BEMFslope_Perc_to_RegVal(initPrm->vm.decelerationFinalSlope));
 		Powerstep01_CmdSetParam(deviceId, POWERSTEP01_CONFIG,
-				(uint16_t) initPrm->vm.oscClkSel | (uint16_t) initPrm->vm.swMode
-						| (uint16_t) initPrm->vm.enVsComp
-						| (uint16_t) initPrm->vm.ocSd
-						| (uint16_t) initPrm->vm.uvloVal
-						| (uint16_t) initPrm->vm.vccVal
-						| (uint16_t) initPrm->vm.fPwmInt
-						| (uint16_t) initPrm->vm.fPwmDec);
+				(uint16_t) initPrm->vm.oscClkSel | (uint16_t) initPrm->vm.swMode | (uint16_t) initPrm->vm.enVsComp
+						| (uint16_t) initPrm->vm.ocSd | (uint16_t) initPrm->vm.uvloVal | (uint16_t) initPrm->vm.vccVal
+						| (uint16_t) initPrm->vm.fPwmInt | (uint16_t) initPrm->vm.fPwmDec);
 	} else {
 		// Current mode
 		Powerstep01_CmdSetParam(deviceId, POWERSTEP01_TVAL_HOLD,
@@ -1716,20 +1573,13 @@ void Powerstep01_SetDeviceParamsToGivenValues(uint8_t deviceId,
 		Powerstep01_CmdSetParam(deviceId, POWERSTEP01_TVAL_DEC,
 				Powerstep01_Tval_RefVoltage_to_RegVal(initPrm->cm.tvalDec));
 		Powerstep01_CmdSetParam(deviceId, POWERSTEP01_T_FAST,
-				(uint8_t) initPrm->cm.toffFast
-						| (uint8_t) initPrm->cm.fastStep);
-		Powerstep01_CmdSetParam(deviceId, POWERSTEP01_TON_MIN,
-				Powerstep01_Tmin_Time_to_RegVal(initPrm->cm.tonMin));
-		Powerstep01_CmdSetParam(deviceId, POWERSTEP01_TOFF_MIN,
-				Powerstep01_Tmin_Time_to_RegVal(initPrm->cm.toffMin));
+				(uint8_t) initPrm->cm.toffFast | (uint8_t) initPrm->cm.fastStep);
+		Powerstep01_CmdSetParam(deviceId, POWERSTEP01_TON_MIN, Powerstep01_Tmin_Time_to_RegVal(initPrm->cm.tonMin));
+		Powerstep01_CmdSetParam(deviceId, POWERSTEP01_TOFF_MIN, Powerstep01_Tmin_Time_to_RegVal(initPrm->cm.toffMin));
 		Powerstep01_CmdSetParam(deviceId, POWERSTEP01_CONFIG,
-				(uint16_t) initPrm->cm.oscClkSel | (uint16_t) initPrm->cm.swMode
-						| (uint16_t) initPrm->cm.tqReg
-						| (uint16_t) initPrm->cm.ocSd
-						| (uint16_t) initPrm->cm.uvloVal
-						| (uint16_t) initPrm->cm.vccVal
-						| (uint16_t) initPrm->cm.tsw
-						| (uint16_t) initPrm->cm.predEn);
+				(uint16_t) initPrm->cm.oscClkSel | (uint16_t) initPrm->cm.swMode | (uint16_t) initPrm->cm.tqReg
+						| (uint16_t) initPrm->cm.ocSd | (uint16_t) initPrm->cm.uvloVal | (uint16_t) initPrm->cm.vccVal
+						| (uint16_t) initPrm->cm.tsw | (uint16_t) initPrm->cm.predEn);
 	}
 }
 
@@ -1740,8 +1590,7 @@ void Powerstep01_SetDeviceParamsToGivenValues(uint8_t deviceId,
  * @retval None
  *********************************************************/
 void Powerstep01_WriteBytes(uint8_t *pByteToTransmit, uint8_t *pReceivedByte) {
-	if (Powerstep01_Board_SpiWriteBytes(pByteToTransmit, pReceivedByte,
-			numberOfDevices) != 0) {
+	if (Powerstep01_Board_SpiWriteBytes(pByteToTransmit, pReceivedByte, numberOfDevices) != 0) {
 		Powerstep01_ErrorHandler(POWERSTEP01_ERROR_1);
 	}
 
