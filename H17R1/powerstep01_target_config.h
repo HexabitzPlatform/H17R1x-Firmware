@@ -53,20 +53,20 @@
 /************************ Voltage mode parameters  **************************/
 /// Register : KVAL_ACC 
 /// Acceleration duty cycle (torque) in %, range 0 to 99.6%
-#define POWERSTEP01_CONF_PARAM_KVAL_ACC_DEVICE_0 (16.02)
-
+//#define POWERSTEP01_CONF_PARAM_KVAL_ACC_DEVICE_0 (16.02)
+#define POWERSTEP01_CONF_PARAM_KVAL_ACC_DEVICE_0 (CONF_PARAM_KVAL_ACC_DEVICE_0)
 /// Register : KVAL_DEC 
 /// Deceleration duty cycle (torque) in %, range 0 to 99.6%
-#define POWERSTEP01_CONF_PARAM_KVAL_DEC_DEVICE_0 (16.02)
-
+//#define POWERSTEP01_CONF_PARAM_KVAL_DEC_DEVICE_0 (16.02)
+#define POWERSTEP01_CONF_PARAM_KVAL_DEC_DEVICE_0 (CONF_PARAM_KVAL_DEC_DEVICE_0)
 /// Register : KVAL_RUN 
 /// Run duty cycle (torque) in %, range 0 to 99.6%
-#define POWERSTEP01_CONF_PARAM_KVAL_RUN_DEVICE_0 (16.02)
-
+//#define POWERSTEP01_CONF_PARAM_KVAL_RUN_DEVICE_0 (16.02)
+#define POWERSTEP01_CONF_PARAM_KVAL_RUN_DEVICE_0 (CONF_PARAM_KVAL_RUN_DEVICE_0)
 /// Register : KVAL_HOLD 
 /// Hold duty cycle (torque) in %, range 0 to 99.6%
-#define POWERSTEP01_CONF_PARAM_KVAL_HOLD_DEVICE_0 (16.02)
-
+//#define POWERSTEP01_CONF_PARAM_KVAL_HOLD_DEVICE_0 (16.02)
+#define POWERSTEP01_CONF_PARAM_KVAL_HOLD_DEVICE_0 (CONF_PARAM_KVAL_HOLD_DEVICE_0)
 /// Register : CONFIG - field : EN_VSCOMP 
 /// Motor Supply Voltage Compensation enabling , enum powerstep01_ConfigEnVscomp_t
 #define POWERSTEP01_CONF_PARAM_VS_COMP_DEVICE_0 (POWERSTEP01_CONFIG_VS_COMP_DISABLE)
