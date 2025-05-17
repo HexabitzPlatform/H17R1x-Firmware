@@ -10,7 +10,8 @@
 #ifndef __POWERSTEP01_TARGET_CONFIG_H
 #define __POWERSTEP01_TARGET_CONFIG_H
 
-#include "motor_parameters_config.h.h"
+#include "motor_configuration.h"
+
 /// The maximum number of devices in the daisy chain
 #define MAX_NUMBER_OF_DEVICES                 (1)
 
@@ -21,24 +22,28 @@
 /**************************** Speed Profile *********************************/
 /// Register : ACC
 /// Acceleration rate in step/s2, range 14.55 to 59590 steps/s^2 
-#define POWERSTEP01_CONF_PARAM_ACC_DEVICE_0 (5000)
-//#define POWERSTEP01_CONF_PARAM_ACC_DEVICE_0 (CONF_PARAM_ACC_DEVICE_0)
+//#define POWERSTEP01_CONF_PARAM_ACC_DEVICE_0 (5000)
+#define POWERSTEP01_CONF_PARAM_ACC_DEVICE_0 (CONF_PARAM_ACC_DEVICE_0)
 
 /// Register : DEC
 /// Deceleration rate in step/s2, range 14.55 to 59590 steps/s^2
-#define POWERSTEP01_CONF_PARAM_DEC_DEVICE_0 (1000)
+//#define POWERSTEP01_CONF_PARAM_DEC_DEVICE_0 (1000)
+#define POWERSTEP01_CONF_PARAM_DEC_DEVICE_0 (CONF_PARAM_DEC_DEVICE_0)
 
 ///Register : MAX_SPEED
 /// Maximum speed in step/s, range 15.25 to 15610 steps/s
-#define POWERSTEP01_CONF_PARAM_MAX_SPEED_DEVICE_0 (15610)
+//#define POWERSTEP01_CONF_PARAM_MAX_SPEED_DEVICE_0 (15610)
+#define POWERSTEP01_CONF_PARAM_MAX_SPEED_DEVICE_0 (CONF_PARAM_MAX_SPEED_DEVICE_0)
 
 /// Register : MIN_SPEED 
 /// Minimum speed in step/s, range 0 to 976.3 steps/s
-#define POWERSTEP01_CONF_PARAM_MIN_SPEED_DEVICE_0 (0)
+//#define POWERSTEP01_CONF_PARAM_MIN_SPEED_DEVICE_0 (0)
+#define POWERSTEP01_CONF_PARAM_MIN_SPEED_DEVICE_0 (CONF_PARAM_MIN_SPEED_DEVICE_0)
 
 /// Register : FS_SPD 
 /// Full step speed in step/s, range 7.63 to 15625 steps/s
-#define POWERSTEP01_CONF_PARAM_FS_SPD_DEVICE_0 (2000/*244.16*/)
+//#define POWERSTEP01_CONF_PARAM_FS_SPD_DEVICE_0 (2000/*244.16*/)
+#define POWERSTEP01_CONF_PARAM_FS_SPD_DEVICE_0 (CONF_PARAM_FS_SPD_DEVICE_0)
 
 /// Register : FS_SPD - field : BOOST_MODE 
 /// Boost of the amplitude square wave, enum powerstep01_BoostMode_t
@@ -102,19 +107,23 @@
 
 /// Register : TVAL_ACC 
 /// Acceleration torque in mV, range from 7.8mV to 1000 mV 
-#define POWERSTEP01_CONF_PARAM_TVAL_ACC_DEVICE_0  (32)
+//#define POWERSTEP01_CONF_PARAM_TVAL_ACC_DEVICE_0  (32)
+#define POWERSTEP01_CONF_PARAM_TVAL_ACC_DEVICE_0  (CONF_PARAM_TVAL_ACC_DEVICE_0)
 
 /// Register : TVAL_DEC 
 /// Deceleration torque in mV, range from 7.8mV to 1000 mV 
-#define POWERSTEP01_CONF_PARAM_TVAL_DEC_DEVICE_0  (32)
+//#define POWERSTEP01_CONF_PARAM_TVAL_DEC_DEVICE_0  (32)
+#define POWERSTEP01_CONF_PARAM_TVAL_DEC_DEVICE_0  (CONF_PARAM_TVAL_DEC_DEVICE_0)
 
 /// Register : TVAL_RUN 
 /// Running torque in mV, range from 7.8mV to 1000 mV 
-#define POWERSTEP01_CONF_PARAM_TVAL_RUN_DEVICE_0  (32)
+//#define POWERSTEP01_CONF_PARAM_TVAL_RUN_DEVICE_0  (32)
+#define POWERSTEP01_CONF_PARAM_TVAL_RUN_DEVICE_0  (CONF_PARAM_TVAL_RUN_DEVICE_0)
 
 /// Register : TVAL_HOLD 
 /// Holding torque in mV, range from 7.8mV to 1000 mV 
-#define POWERSTEP01_CONF_PARAM_TVAL_HOLD_DEVICE_0 (7.8)
+//#define POWERSTEP01_CONF_PARAM_TVAL_HOLD_DEVICE_0 (7.8)
+#define POWERSTEP01_CONF_PARAM_TVAL_HOLD_DEVICE_0 (CONF_PARAM_TVAL_HOLD_DEVICE_0)
 
 /// Register : CONFIG - field : EN_TQREG 
 /// External torque regulation enabling , enum powerstep01_ConfigEnTqReg_t 
@@ -203,11 +212,13 @@
 
 /// Register : STEP_MODE - field : STEP_MODE 
 /// Step mode settings via enum motorStepMode_t 
-#define POWERSTEP01_CONF_PARAM_STEP_MODE_DEVICE_0 (STEP_MODE_1_16)
+//#define POWERSTEP01_CONF_PARAM_STEP_MODE_DEVICE_0 (STEP_MODE_1_16)
+#define POWERSTEP01_CONF_PARAM_STEP_MODE_DEVICE_0 (CONF_PARAM_STEP_MODE_DEVICE_0)
 
 /// Register : STEP_MODE - field : CM_VM 
 /// Current mode or Voltage mode via enum powerstep01_CmVm_t 
-#define POWERSTEP01_CONF_PARAM_CM_VM_DEVICE_0 (POWERSTEP01_CM_VM_CURRENT)
+//#define POWERSTEP01_CONF_PARAM_CM_VM_DEVICE_0 (POWERSTEP01_CM_VM_CURRENT)
+#define POWERSTEP01_CONF_PARAM_CM_VM_DEVICE_0 (CONF_PARAM_CM_VM_DEVICE_0)
 
 /// Register : STEP_MODE - Field : SYNC_MODE and SYNC_EN 
 /// Synch. Mode settings via enum powerstep01_SyncSel_t 

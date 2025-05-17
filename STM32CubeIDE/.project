@@ -214,6 +214,11 @@
 			<locationURI>PARENT-1-PROJECT_LOC/H17R1/motor.h</locationURI>
 		</link>
 		<link>
+			<name>H17R1/motor_configuration.h</name>
+			<type>1</type>
+			<locationURI>PARENT-1-PROJECT_LOC/H17R1/motor_configuration.h</locationURI>
+		</link>
+		<link>
 			<name>H17R1/powerstep01.c</name>
 			<type>1</type>
 			<locationURI>PARENT-1-PROJECT_LOC/H17R1/powerstep01.c</locationURI>
