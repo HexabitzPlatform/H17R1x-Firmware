@@ -966,18 +966,18 @@ Module_Status StepperIcInit(DrivingMethod, float Accelaration, float Declaration
 	if (MaxSpeed < MOTOR_MIN_SPEED || MaxSpeed > MOTOR_MAX_SPEED)
 		return H17R1_ERR_WRONGPARAMS;
 
-	/* Default Mode is current mode */
-	if (CURRENT_MODE == 0)
-		initDeviceParameters = StepperIcInit_current_mode(Accelaration, Declaration, MaxSpeed, Overcurrent);
-	 else
-		initDeviceParameters = StepperIcInit_voltage_mode(Accelaration, Declaration, MaxSpeed, Overcurrent);
+//	/* Default Mode is current mode */
+//	if (CURRENT_MODE == 0)
+//		initDeviceParameters = StepperIcInit_current_mode(Accelaration, Declaration, MaxSpeed, Overcurrent);
+//	 else
+//		initDeviceParameters = StepperIcInit_voltage_mode(Accelaration, Declaration, MaxSpeed, Overcurrent);
 
 	/* Set the Powerstep01 library to use 1 device */
 	Powerstep01_SetNbDevices(1);
 
 	/* device with the union declared in the the H17R1.h file and comment the    */
 	/* subsequent call having the NULL pointer                                  */
-	Powerstep01_Init(&initDeviceParameters);
+	Powerstep01_Init(NULL/*&initDeviceParameters*/);
 
 	/* Attach the function MyFlagInterruptHandler (defined below) to the flag interrupt */
 	Powerstep01_AttachFlagInterrupt(MyFlagInterruptHandler);

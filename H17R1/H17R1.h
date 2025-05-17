@@ -26,6 +26,16 @@
 #include "H17R1_inputs.h"
 #include "H17R1_eeprom.h"
 #include "powerstep01.h"
+//#include "motor.h"
+
+/* Motors ******************************************************************/
+//#define MOTOR_23HS8240
+////#define MOTOR_17HS4401
+////#define MOTOR_SY42STH38_1684A
+////#define MOTOR_23HS45_4204S
+////#define MOTOR_KL23H256_21_8B
+////#define MOTOR_34HS59_5008D
+
 
 /* Exported Macros *********************************************************/
 #define	MODULE_PN		_H17R1
@@ -65,12 +75,6 @@
 #define	USART3_TX_PORT		GPIOB
 #define	USART3_RX_PORT		GPIOB
 #define	USART3_AF			GPIO_AF4_USART3
-
-#define	USART4_TX_PIN		GPIO_PIN_0
-#define	USART4_RX_PIN		GPIO_PIN_1
-#define	USART4_TX_PORT		GPIOA
-#define	USART4_RX_PORT		GPIOA
-#define	USART4_AF			GPIO_AF4_USART4
 
 #define	USART5_TX_PIN		GPIO_PIN_3
 #define	USART5_RX_PIN		GPIO_PIN_2
