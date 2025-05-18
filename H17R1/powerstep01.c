@@ -1255,33 +1255,33 @@ void Powerstep01_SetRegisterToPredefinedValues(uint8_t deviceId) {
 		Powerstep01_CmdSetParam(deviceId, POWERSTEP01_MIN_SPEED,
 		POWERSTEP01_CONF_PARAM_LSPD_BIT_DEVICE_0 | Powerstep01_MinSpd_Steps_s_to_RegVal(
 		POWERSTEP01_CONF_PARAM_MIN_SPEED_DEVICE_0));//lowSpeedOptimization=opt-off(for current,voltage)  minSpeed=0(for current,voltage)
-		if(cmVm = POWERSTEP01_CM_VM_CURRENT)
+		if(cmVm == POWERSTEP01_CM_VM_CURRENT)
 			Powerstep01_CmdSetParam(deviceId, POWERSTEP01_FS_SPD,
 			POWERSTEP01_CONF_PARAM_BOOST_MODE_DEVICE_0 | Powerstep01_FSSpd_Steps_s_to_RegVal(
 			2000));// fullStepSpeed=2000(for current) boostMode=bosst-off
-		else if(cmVm = POWERSTEP01_CM_VM_VOLTAGE)
+		else if(cmVm == POWERSTEP01_CM_VM_VOLTAGE)
 			Powerstep01_CmdSetParam(deviceId, POWERSTEP01_FS_SPD,
 			POWERSTEP01_CONF_PARAM_BOOST_MODE_DEVICE_0 | Powerstep01_FSSpd_Steps_s_to_RegVal(
 			244.16));// fullStepSpeed=244.16(for voltage)   boostMode=bosst-off
      	Powerstep01_CmdSetParam(deviceId, POWERSTEP01_OCD_TH, (uint8_t) POWERSTEP01_CONF_PARAM_OCD_TH_DEVICE_0);//ocdThreshold=48c/v
-     	if(cmVm = POWERSTEP01_CM_VM_CURRENT)
+     	if(cmVm == POWERSTEP01_CM_VM_CURRENT)
      		Powerstep01_CmdSetParam(deviceId, POWERSTEP01_STEP_MODE,
 			(uint8_t) POWERSTEP01_CONF_PARAM_SYNC_MODE_DEVICE_0 | (uint8_t) POWERSTEP01_CM_VM_CURRENT
 			| (uint8_t) POWERSTEP01_CONF_PARAM_STEP_MODE_DEVICE_0);//cmVmSelection=current   syncClockSelection=sync-disable  stepMode=mode1-16(for current)
-     	else if(cmVm = POWERSTEP01_CM_VM_VOLTAGE)
+     	else if(cmVm == POWERSTEP01_CM_VM_VOLTAGE)
      		Powerstep01_CmdSetParam(deviceId, POWERSTEP01_STEP_MODE,
 			(uint8_t) POWERSTEP01_CONF_PARAM_SYNC_MODE_DEVICE_0 | (uint8_t) POWERSTEP01_CM_VM_VOLTAGE
 			| (uint8_t) STEP_MODE_1_128);//cmVmSelection=voltage   syncClockSelection=sync-disable  stepMode=mode-1-128(for voltage)
 		Powerstep01_CmdSetParam(deviceId, POWERSTEP01_ALARM_EN,
 		POWERSTEP01_CONF_PARAM_ALARM_EN_DEVICE_0);
-		if(cmVm = POWERSTEP01_CM_VM_CURRENT)
+		if(cmVm == POWERSTEP01_CM_VM_CURRENT)
 		{
 			Powerstep01_CmdSetParam(deviceId, POWERSTEP01_GATECFG1,
 			(uint16_t) POWERSTEP01_CONF_PARAM_IGATE_DEVICE_0 | (uint16_t) POWERSTEP01_CONF_PARAM_TCC_DEVICE_0
 			| (uint16_t) POWERSTEP01_CONF_PARAM_TBOOST_DEVICE_0
 			| (uint16_t) POWERSTEP01_CONF_PARAM_WD_EN_DEVICE_0);//(for current,voltage) igate = 64ma  tcc = 500ns  tboost = 500ns(for current)   wdEn=wd-en-dis
 		}
-		else if(cmVm = POWERSTEP01_CM_VM_VOLTAGE)
+		else if(cmVm == POWERSTEP01_CM_VM_VOLTAGE)
 		{
     		Powerstep01_CmdSetParam(deviceId, POWERSTEP01_GATECFG1,
 			(uint16_t) POWERSTEP01_CONF_PARAM_IGATE_DEVICE_0 | (uint16_t) POWERSTEP01_CONF_PARAM_TCC_DEVICE_0
