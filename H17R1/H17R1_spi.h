@@ -1,46 +1,34 @@
 /*
- BitzOS (BOS) V0.3.6 - Copyright (C) 2017-2024 Hexabitz
+ BitzOS (BOS) V0.4.0 - Copyright (C) 2017-2025 Hexabitz
  All rights reserved
 
  File Name     : H17R1_spi.h
- Description   : Header for BSP driver for x-nucleo-ihm03a1 Nucleo extension board
-  *  (based on powerSTEP01)
-
+ Description   : This file contains all the function prototypes for
+               the spi.c file
  */
-  
-/* Define to prevent recursive inclusion -------------------------------------*/
-#ifndef G0_MCU_HARDWARE_H
-#define G0_MCU_HARDWARE_H
+
+
+/* Define to prevent recursive inclusion ***********************************/
+#ifndef __SPI_H__
+#define __SPI_H__
 
 #ifdef __cplusplus
- extern "C" {
+extern "C" {
 #endif
 
-/* Includes ------------------------------------------------------------------*/
-#include "stm32g0xx_hal.h"
+/* Includes ****************************************************************/
+#include "BOS.h"
 
-   
-/******************************************************************************/
-/* USE_STM32G0XX                                                     */
-/******************************************************************************/
-#define FLAG_Pin GPIO_PIN_11
-#define FLAG_GPIO_Port GPIOA
-#define FLAG_EXTI_IRQn EXTI4_15_IRQn
-#define BUSY_Pin GPIO_PIN_12
-#define BUSY_GPIO_Port GPIOA
-#define BUSY_EXTI_IRQn EXTI4_15_IRQn
-#define RESET_Pin GPIO_PIN_6
-#define RESET_GPIO_Port GPIOB
-#define STCK_Pin GPIO_PIN_7
-#define STCK_GPIO_Port GPIOB
-void MX_SPI1_Init(void);
-void Error_Handler(void);
+/* Exported Variables ******************************************************/
+extern SPI_HandleTypeDef  hspi1;
 
+/* Exported Functions ******************************************************/
+void MX_SPI_Init(void);
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif /* X_NUCLEO_IHM03A1_STM32L0XX_H */
+#endif /* __SPI_H__ */
 
-/************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
+/***************** (C) COPYRIGHT HEXABITZ ***** END OF FILE ****************/
