@@ -134,6 +134,11 @@
 			<locationURI>PARENT-1-PROJECT_LOC/H17R1/H17R1_MemoryMap.h</locationURI>
 		</link>
 		<link>
+			<name>H17R1/H17R1_MotorConfiguration.h</name>
+			<type>1</type>
+			<locationURI>PARENT-1-PROJECT_LOC/H17R1/motor_configuration.h</locationURI>
+		</link>
+		<link>
 			<name>H17R1/H17R1_dma.c</name>
 			<type>1</type>
 			<locationURI>PARENT-1-PROJECT_LOC/H17R1/H17R1_dma.c</locationURI>
@@ -186,7 +191,7 @@
 		<link>
 			<name>H17R1/H17R1_spi.c</name>
 			<type>1</type>
-			<locationURI>PARENT-1-PROJECT_LOC/H17R1/G0_MCU_Hardware.c</locationURI>
+			<locationURI>PARENT-1-PROJECT_LOC/H17R1/H17R1_spi.c</locationURI>
 		</link>
 		<link>
 			<name>H17R1/H17R1_spi.h</name>
@@ -209,26 +214,6 @@
 			<locationURI>PARENT-1-PROJECT_LOC/H17R1/H17R1_uart.h</locationURI>
 		</link>
 		<link>
-			<name>H17R1/motor.h</name>
-			<type>1</type>
-			<locationURI>PARENT-1-PROJECT_LOC/H17R1/motor.h</locationURI>
-		</link>
-		<link>
-			<name>H17R1/powerstep01.c</name>
-			<type>1</type>
-			<locationURI>PARENT-1-PROJECT_LOC/H17R1/powerstep01.c</locationURI>
-		</link>
-		<link>
-			<name>H17R1/powerstep01.h</name>
-			<type>1</type>
-			<locationURI>PARENT-1-PROJECT_LOC/H17R1/powerstep01.h</locationURI>
-		</link>
-		<link>
-			<name>H17R1/powerstep01_target_config.h</name>
-			<type>1</type>
-			<locationURI>PARENT-1-PROJECT_LOC/H17R1/powerstep01_target_config.h</locationURI>
-		</link>
-		<link>
 			<name>H17R1/startup_stm32g0b1ceuxn.s</name>
 			<type>1</type>
 			<locationURI>PARENT-1-PROJECT_LOC/H17R1/startup_stm32g0b1ceuxn.s</locationURI>
@@ -249,9 +234,19 @@
 			<locationURI>virtual:/virtual</locationURI>
 		</link>
 		<link>
+			<name>Thirdparty/EEPROM_Emul</name>
+			<type>2</type>
+			<locationURI>PARENT-2-PROJECT_LOC/H08R7x-Firmware/Thirdparty/EEPROM_Emul</locationURI>
+		</link>
+		<link>
 			<name>Thirdparty/Middleware</name>
 			<type>2</type>
 			<locationURI>virtual:/virtual</locationURI>
+		</link>
+		<link>
+			<name>Thirdparty/PowerStep01-Stepper</name>
+			<type>2</type>
+			<locationURI>PARENT-1-PROJECT_LOC/Thirdparty/PowerStep01-Stepper</locationURI>
 		</link>
 		<link>
 			<name>Thirdparty/README.md</name>
@@ -282,6 +277,16 @@
 			<name>Thirdparty/CMSIS/STM32G0xx</name>
 			<type>2</type>
 			<locationURI>PARENT-1-PROJECT_LOC/Thirdparty/CMSIS/STM32G0xx</locationURI>
+		</link>
+		<link>
+			<name>Thirdparty/EEPROM_Emul/Core</name>
+			<type>2</type>
+			<locationURI>PARENT-1-PROJECT_LOC/Thirdparty/EEPROM_Emul/Core</locationURI>
+		</link>
+		<link>
+			<name>Thirdparty/EEPROM_Emul/Porting</name>
+			<type>2</type>
+			<locationURI>PARENT-1-PROJECT_LOC/Thirdparty/EEPROM_Emul/Porting</locationURI>
 		</link>
 		<link>
 			<name>Thirdparty/Middleware/STM32G0xx</name>
