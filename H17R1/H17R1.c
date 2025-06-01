@@ -554,7 +554,7 @@ Module_Status Module_MessagingTask(uint16_t code, uint8_t port, uint8_t src, uin
 
 	switch (code) {
 
-	case CODE_H17R1_StepperIcInit:
+	case CODE_H17R1_STEPPER_IC_INIT:
 		steppermode = cMessage[port - 1][shift];
 		Accelaration = ((uint32_t) cMessage[port - 1][1 + shift])
 				+ ((uint32_t) cMessage[port - 1][2 + shift] << 8)
@@ -584,7 +584,7 @@ Module_Status Module_MessagingTask(uint16_t code, uint8_t port, uint8_t src, uin
 		StepperMove(Direction, Steps);
 		break;
 
-	case CODE_H17R1_StepperRun:
+	case CODE_H17R1_STEPPER_RUN:
 		Direction = cMessage[port - 1][shift];
 		Speed = ((uint32_t) cMessage[port - 1][1 + shift])
 				+ ((uint32_t) cMessage[port - 1][2 + shift] << 8)
@@ -593,7 +593,7 @@ Module_Status Module_MessagingTask(uint16_t code, uint8_t port, uint8_t src, uin
 		StepperRun(Direction, Speed);
 		break;
 
-	case CODE_H17R1_StepperStop:
+	case CODE_H17R1_STEPPER_STOP:
 		mode = cMessage[port - 1][shift];
 		StepperStop(mode);
 		break;
