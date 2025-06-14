@@ -2,10 +2,10 @@
  BitzOS (BOS) V0.4.0 - Copyright (C) 2017-2025 Hexabitz
  All rights reserved
 
- File Name     : H17R1_spi.c
- Description   : This file provides code for the configuration
- of the SPI instances.
- */
+ File Name  : H17R1_spi.c
+ Description: Configures the SPI1 peripheral for communication.
+ SPI: Initializes SPI1, sets up GPIO pins (NSS, SCK, MISO, MOSI), and manages clock and interrupts.
+*/
 
 /* Includes ****************************************************************/
 #include "BOS.h"

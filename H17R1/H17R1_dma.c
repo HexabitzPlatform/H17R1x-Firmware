@@ -2,10 +2,12 @@
  BitzOS (BOS) V0.4.0 - Copyright (C) 2017-2025 Hexabitz
  All rights reserved
 
- File Name     : H17R1_dma.c
- Description   : source file Contains Peripheral DMA setup .
-
- */
+ File Name  : H17R1_dma.c
+ Description: DMA configuration for UART communication.
+ DMA: Initialization and management for UART RX (Channels 1-6).
+ Modes: Messaging and streaming DMA setup/switch.
+ CRC: CRC8 initialization and calculation for message validation.
+*/
 
 /* Includes ****************************************************************/
 #include "BOS.h"

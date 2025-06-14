@@ -2,10 +2,10 @@
  BitzOS (BOS) V0.4.0 - Copyright (C) 2017-2025 Hexabitz
  All rights reserved
 
- File Name     : H17R1_gpio.c
- Description   : Source code provides code for the configuration of all used GPIO pins .
-
- */
+ File Name  : H17R1_gpio.c
+ Description: Initialize and configure GPIO pins for module ports and peripherals.
+ GPIO: Setup for indicator LED, stepper motor control (RESET, FLAG, BUSY), factory reset detection, and port GPIO retrieval.
+*/
 
 /* Includes ****************************************************************/
 #include "BOS.h"

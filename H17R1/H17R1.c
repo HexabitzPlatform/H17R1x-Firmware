@@ -2,14 +2,12 @@
  BitzOS (BOS) V0.4.0 - Copyright (C) 2017-2025 Hexabitz
  All rights reserved
 
- File Name     : H17R1.c
- Description   : Source code for module H17R1.
- 	 	 	 	 (Description_of_module)
-
-(Description of Special module peripheral configuration):
->> Current mode is better when high speed is needed
->> Default parameters is Current mode parameters
->>
+ File Name  : H17R1.c
+ Description: Manages stepper motor control for module H17R1.
+ Module_Peripheral_Init: Initialization of UART2-3, UART5-6, SPI, TIM4, and GPIO for stepper motor control.
+ CLI: "steppericinit", "steppermove", "stepperrun", "stepperstop" commands for motor configuration and operation.
+ Messages: Processes requests for motor initialization, movement, continuous run, and stopping.
+ Module-specific functions: Stepper motor initialization, movement control, and status monitoring.
  */
 
 /* Includes ****************************************************************/

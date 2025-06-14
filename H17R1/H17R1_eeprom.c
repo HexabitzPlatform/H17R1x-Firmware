@@ -2,10 +2,12 @@
  BitzOS (BOS) V0.4.0 - Copyright (C) 2017-2025 Hexabitz
  All rights reserved
 
- File Name     : H17R1_eeprom.c
- Description   : EEPROM emulator library (Source file).
-
- */
+ File Name  : H17R1_eeprom.c
+ Description: Emulated EEPROM management in Flash memory.
+ EEPROM: Initialize, read, write, format operations.
+ Flash: Page management, sector erasure, factory reset.
+ Storage: 1000 16-bit variables across 8 pages (4+4 backup).
+*/
 
 /* Includes ****************************************************************/
 #include "BOS.h"

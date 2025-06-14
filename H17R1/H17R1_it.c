@@ -2,10 +2,10 @@
  BitzOS (BOS) V0.4.0 - Copyright (C) 2017-2025 Hexabitz
  All rights reserved
 
- File Name     : H1DR5_it.c
- Description   :Interrupt Service Routines.
-
- */
+ File Name  : H1DR5_it.c
+ Description: Manages interrupt service routines for system and peripherals.
+ Interrupts: SysTick, HardFault, UART (USART1-6), DMA (Channels 1-6), TIM3/TIM4, EXTI for FLAG and BUSY pins.
+*/
 
 /* Includes ****************************************************************/
 #include "BOS.h"

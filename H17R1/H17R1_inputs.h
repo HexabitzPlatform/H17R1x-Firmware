@@ -2,9 +2,9 @@
  BitzOS (BOS) V0.4.0 - Copyright (C) 2017-2025 Hexabitz
  All rights reserved
 
- File Name     : H17R1_inputs.h
- Description   : header file for Bitz digital and analog inputs.
- 
+ File Name  : H17R1_inputs.h
+ Description: Header for digital and analog input management.
+ Inputs: Defines ADC channel macros, pin assignments, and prototypes for input handling functions.
 */
 
 /* Includes ****************************************************************/

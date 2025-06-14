@@ -2,10 +2,10 @@
  BitzOS (BOS) V0.4.0 - Copyright (C) 2017-2025 Hexabitz
  All rights reserved
 
- File Name     : H17R1_uart.c
- Description   : Source Code provides configuration for USART instances.
-
- */
+ File Name  : H17R1_uart.c
+ Description: Configures UART peripherals for module communication.
+ UART: Initializes USART1-6, sets up DMA for reception, and provides protected read/write functions.
+*/
 
 /* Includes ****************************************************************/
 #include "BOS.h"

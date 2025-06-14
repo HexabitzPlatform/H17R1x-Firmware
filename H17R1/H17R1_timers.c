@@ -2,15 +2,10 @@
  BitzOS (BOS) V0.4.0 - Copyright (C) 2017-2025 Hexabitz
  All rights reserved
 
- File Name     : H17R1_timers.c
- Description   : Peripheral timers setup source file.
-
- Required MCU resources :
-
- >> Timer 14 for micro-sec delay.
- >> Timer 15 for milli-sec delay.
-
- */
+ File Name  : H17R1_timers.c
+ Description: Configures timers for delays and PWM, and the watchdog.
+ Timers: TIM16 (microsecond delays), TIM17 (millisecond delays), TIM4 (PWM), IWDG (500ms watchdog).
+*/
 
 /* Includes ****************************************************************/
 #include "BOS.h"

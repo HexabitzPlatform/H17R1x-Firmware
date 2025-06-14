@@ -2,10 +2,10 @@
  BitzOS (BOS) V0.4.0 - Copyright (C) 2017-2025 Hexabitz
  All rights reserved
 
- File Name     : H17R1_rtc.c
- Description   : Peripheral RTC setup source file.
-
- */
+ File Name  : H17R1_rtc.c
+ Description: Configures and manages the Real-Time Clock (RTC) peripheral.
+ RTC: Initialization, calendar setup, boot status handling based on reset flags.
+*/
 
 /* Includes ****************************************************************/
 #include "BOS.h"

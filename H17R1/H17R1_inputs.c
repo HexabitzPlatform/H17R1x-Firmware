@@ -2,10 +2,10 @@
  BitzOS (BOS) V0.4.0 - Copyright (C) 2017-2025 Hexabitz
  All rights reserved
 
- File Name     : H17R1_inputs.c
- Description   : Source code for Bitz digital and analog inputs.
-
- */
+ File Name  : H17R1_inputs.c
+ Description: Manage digital and analog inputs for the module.
+ Inputs: Button handling with debouncing and event detection, ADC configuration, and reading temperature/voltage reference.
+*/
 
 /* Includes ****************************************************************/
 #include "H17R1_inputs.h"

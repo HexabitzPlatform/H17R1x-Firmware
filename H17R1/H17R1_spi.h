@@ -2,11 +2,10 @@
  BitzOS (BOS) V0.4.0 - Copyright (C) 2017-2025 Hexabitz
  All rights reserved
 
- File Name     : H17R1_spi.h
- Description   : This file contains all the function prototypes for
-               the spi.c file
- */
-
+ File Name  : H17R1_spi.h
+ Description: Header for SPI configuration functions.
+ SPI: Declares SPI1 handle and initialization function prototypes.
+*/
 
 /* Define to prevent recursive inclusion ***********************************/
 #ifndef __SPI_H__

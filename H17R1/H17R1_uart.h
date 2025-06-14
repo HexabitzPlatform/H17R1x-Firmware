@@ -2,9 +2,10 @@
  BitzOS (BOS) V0.4.0 - Copyright (C) 2017-2025 Hexabitz
  All rights reserved
 
- File Name     : H17R1_uart.h
- Description   : Header file provides configuration for USART instances.
- */
+ File Name  : H17R1_uart.h
+ Description: Header for UART configuration and communication functions.
+ UART: Declares functions for protected read/write, baudrate update, and port direction management.
+*/
 
 /* Define to prevent recursive inclusion ***********************************/
 #ifndef __usart_H

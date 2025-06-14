@@ -2,12 +2,10 @@
  BitzOS (BOS) V0.4.0 - Copyright (C) 2017-2025 Hexabitz
  All rights reserved
 
- File Name     : H17R1_gpio.h
- Description   : Header file contains all the functions prototypes for
- the GPIO .
-
- */
-
+ File Name  : H17R1_gpio.h
+ Description: Header for GPIO configuration functions.
+ GPIO: Prototypes for initialization, LED setup, stepper GPIO setup, factory reset check, and port GPIO retrieval.
+*/
 
 /* Define to prevent recursive inclusion ***********************************/
 #ifndef __gpio_H

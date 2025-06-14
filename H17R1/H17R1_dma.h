@@ -1,11 +1,12 @@
 /*
  BitzOS (BOS) V0.4.0 - Copyright (C) 2017-2025 Hexabitz
  All rights reserved
- 
- File Name     : H17R1_dma.h
- Description   : Header file contains Peripheral DMA setup.
 
- */
+ File Name  : H17R1_dma.h
+ Description: DMA function declarations for H17R1.
+ Functions: DMA setup, mode switching, CRC calculation.
+ Handles: UART DMA channels 1-6, CRC peripheral.
+*/
 
 /* Define to prevent recursive inclusion ***********************************/
 #ifndef H0BR4_dma_H

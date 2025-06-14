@@ -1,15 +1,14 @@
 /*
  BitzOS (BOS) V0.4.0 - Copyright (C) 2017-2025 Hexabitz
  All rights reserved
- 
- File Name     : H17R1.h
- Description   : Header file for module H17R1.
- (Description_of_module)
 
- (Description of Special module peripheral configuration):
- >>
- >>
- >>
+ File Name  : H17R1.h
+ Description: Header file for module H17R1, providing definitions and prototypes for stepper motor control.
+ Module-specific definitions: Configures UART2-3, UART5-6, SPI, TIM4, and GPIO for stepper motor operation.
+ Special module peripheral configuration:
+ >> Supports current and voltage modes for motor driving.
+ >> Default parameters set for current mode operation.
+ >> Configurable motor parameters for acceleration, deceleration, speed, and overcurrent protection.
  */
 
 /* Define to prevent recursive inclusion ***********************************/

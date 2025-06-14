@@ -1,11 +1,11 @@
 /*
  BitzOS (BOS) V0.4.0 - Copyright (C) 2017-2025 Hexabitz
  All rights reserved
- 
- File Name     : H17R1_MemoryMap.h
- Description   : Module MCU memory map header file.
 
- */
+ File Name  : H17R1_MemoryMap.h
+ Description: Defines the memory map for the STM32G0B0 MCU.
+ Memory: Application, Topology, Snippets, Emulated EEPROM address ranges.
+*/
 
 /* Define to prevent recursive inclusion************************************/
 #ifndef H0BR4_MEMORYMAP_H
