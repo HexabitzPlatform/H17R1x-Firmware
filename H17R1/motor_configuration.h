@@ -48,6 +48,10 @@
 #ifndef __MOTOR_PARAMETERS_CONFIG_H
 #define __MOTOR_PARAMETERS_CONFIG_H
 
+#ifdef __cplusplus
+ extern "C" {
+#endif
+
 /* Motors ******************************************************************/
 #define MOTOR_23HS8240
 //#define MOTOR_17HS4401
@@ -56,10 +60,17 @@
 //#define MOTOR_KL23H256_21_8B
 //#define MOTOR_34HS59_5008D
 
-#ifdef __cplusplus
- extern "C" {
-#endif
+/* Module-specific Macro Definitions ***************************************/
+#define NUM_MODULE_PARAMS	    1
+#define TIMEOUT_MAX             ((uint32_t)0x1000)
 
+#define MOTOR_MAX_SPEED         15610   /* step/tick */
+#define MOTOR_MIN_SPEED         15.25   /* step/tick */
+
+#define MOTOR_MAX_ACC_DEC_V_C   59590
+#define MOTOR_MIN_ACC_DEC_V_C   14.55
+
+/* MOTOR_23HS8240 Parameters */
 #ifdef MOTOR_23HS8240
 #define CONF_PARAM_ACC_DEVICE_0         (5000)
 #define CONF_PARAM_DEC_DEVICE_0         (1000)
@@ -76,8 +87,13 @@
 #define CONF_PARAM_KVAL_ACC_DEVICE_0    (16.0)
 #define CONF_PARAM_KVAL_DEC_DEVICE_0    (16.0)
 #define CONF_PARAM_KVAL_HOLD_DEVICE_0   (8.0)
+#define ACCELERATION_CURRENT            2000
+#define DECLARATION_CURRENT             2000
+#define MAX_SPEED_CURRENT               2800
+#define OVERCURRENT_CURRENT             3200
 #endif
 
+/* MOTOR_17HS4401 Parameters */
 #ifdef MOTOR_17HS4401
 #define CONF_PARAM_ACC_DEVICE_0         (3000)
 #define CONF_PARAM_DEC_DEVICE_0         (3000)
@@ -94,9 +110,13 @@
 #define CONF_PARAM_KVAL_ACC_DEVICE_0    (16.0)
 #define CONF_PARAM_KVAL_DEC_DEVICE_0    (16.0)
 #define CONF_PARAM_KVAL_HOLD_DEVICE_0   (8.0)
-
+#define ACCELERATION_CURRENT            1000
+#define DECLARATION_CURRENT             800
+#define MAX_SPEED_CURRENT               1500
+#define OVERCURRENT_CURRENT             1800
 #endif
 
+/* MOTOR_SY42STH38_1684A Parameters */
 #ifdef MOTOR_SY42STH38_1684A
 #define CONF_PARAM_ACC_DEVICE_0         (3500)
 #define CONF_PARAM_DEC_DEVICE_0         (3500)
@@ -113,8 +133,13 @@
 #define CONF_PARAM_KVAL_ACC_DEVICE_0    (16.0)
 #define CONF_PARAM_KVAL_DEC_DEVICE_0    (16.0)
 #define CONF_PARAM_KVAL_HOLD_DEVICE_0   (8.0)
+#define ACCELERATION_CURRENT            1000
+#define DECLARATION_CURRENT             800
+#define MAX_SPEED_CURRENT               1500
+#define OVERCURRENT_CURRENT             1800
 #endif
 
+/* MOTOR_23HS45_4204S Parameters */
 #ifdef MOTOR_23HS45_4204S
 #define CONF_PARAM_ACC_DEVICE_0         (3000)
 #define CONF_PARAM_DEC_DEVICE_0         (3000)
@@ -131,8 +156,13 @@
 #define CONF_PARAM_KVAL_ACC_DEVICE_0    (16.0)
 #define CONF_PARAM_KVAL_DEC_DEVICE_0    (16.0)
 #define CONF_PARAM_KVAL_HOLD_DEVICE_0   (8.0)
+#define ACCELERATION_CURRENT            2500
+#define DECLARATION_CURRENT             2000
+#define MAX_SPEED_CURRENT               3500
+#define OVERCURRENT_CURRENT             4000
 #endif
 
+/* MOTOR_KL23H256_21_8B Parameters */
 #ifdef MOTOR_KL23H256_21_8B
 #define CONF_PARAM_ACC_DEVICE_0         (3000)
 #define CONF_PARAM_DEC_DEVICE_0         (3000)
@@ -149,8 +179,13 @@
 #define CONF_PARAM_KVAL_ACC_DEVICE_0    (16.0)
 #define CONF_PARAM_KVAL_DEC_DEVICE_0    (16.0)
 #define CONF_PARAM_KVAL_HOLD_DEVICE_0   (8.0)
+#define ACCELERATION_CURRENT            2000
+#define DECLARATION_CURRENT             1800
+#define MAX_SPEED_CURRENT               2800
+#define OVERCURRENT_CURRENT             3200
 #endif
 
+/* MOTOR_34HS59_5008D Parameters */
 #ifdef MOTOR_34HS59_5008D
 #define CONF_PARAM_ACC_DEVICE_0         (2500)
 #define CONF_PARAM_DEC_DEVICE_0         (2500)
@@ -167,9 +202,11 @@
 #define CONF_PARAM_KVAL_ACC_DEVICE_0    (16.0)
 #define CONF_PARAM_KVAL_DEC_DEVICE_0    (16.0)
 #define CONF_PARAM_KVAL_HOLD_DEVICE_0   (8.0)
+#define ACCELERATION_CURRENT            3500
+#define DECLARATION_CURRENT             3000
+#define MAX_SPEED_CURRENT               4500
+#define OVERCURRENT_CURRENT             5000
 #endif
-
-
 
 #ifdef __cplusplus
 }

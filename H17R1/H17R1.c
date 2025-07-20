@@ -42,6 +42,7 @@ void Module_Peripheral_Init(void);
 void SetupPortForRemoteBootloaderUpdate(uint8_t port);
 void RemoteBootloaderUpdate(uint8_t src,uint8_t dst,uint8_t inport,uint8_t outport);
 Module_Status Module_MessagingTask(uint16_t code,uint8_t port,uint8_t src,uint8_t dst,uint8_t shift);
+static Module_Status StepperIcInit(float Accelaration, float Declaration, float MaxSpeed, float Overcurrent);
 
 /* Local function prototypes ***********************************************/
 void MyBusyInterruptHandler(void);
@@ -54,50 +55,41 @@ void Powerstep01_Board_StartStepClock(uint16_t newFreq);
 void Powerstep01_Board_StopStepClock(void);
 void Powerstep01_Board_ReleaseReset(uint8_t deviceId);
 void Powerstep01_Board_Reset(uint8_t deviceId);
-
 uint8_t Powerstep01_Board_SpiWriteBytes(uint8_t *pByteToTransmit, uint8_t *pReceivedByte, uint8_t nbDevices);
 uint32_t Powerstep01_Board_BUSY_PIN_GetState(void);
 uint32_t Powerstep01_Board_FLAG_PIN_GetState(void);
 
 /* Create CLI commands *****************************************************/
-portBASE_TYPE CLI_StepperIcInitCommand( int8_t *pcWriteBuffer, size_t xWriteBufferLen, const int8_t *pcCommandString );
-portBASE_TYPE CLI_StepperMoveCommand( int8_t *pcWriteBuffer, size_t xWriteBufferLen, const int8_t *pcCommandString );
-portBASE_TYPE CLI_StepperRunCommand( int8_t *pcWriteBuffer, size_t xWriteBufferLen, const int8_t *pcCommandString );
-portBASE_TYPE CLI_StepperStopCommand( int8_t *pcWriteBuffer, size_t xWriteBufferLen, const int8_t *pcCommandString );
+portBASE_TYPE CLI_MotorStepControlCommand( int8_t *pcWriteBuffer, size_t xWriteBufferLen, const int8_t *pcCommandString );
+portBASE_TYPE CLI_MotorTurnOnCommand( int8_t *pcWriteBuffer, size_t xWriteBufferLen, const int8_t *pcCommandString );
+portBASE_TYPE CLI_MotorTurnOffCommand( int8_t *pcWriteBuffer, size_t xWriteBufferLen, const int8_t *pcCommandString );
 
 /* CLI command structure ***************************************************/
-/* CLI command structure : StepperIcInitCommand */
-const CLI_Command_Definition_t CLI_StepperIcInitCommandDefinition = {
-	( const int8_t * ) "steppericinit", /* The command string to type. */
-	( const int8_t * ) "steppericinit:\r\nParameters required to execute a motor_mode:0 for current mode,1 for voltage mode , Acceleration ,Declaration ,max speed ,over current(try from 0 and increase it until rotate the motor(be careful) \r\n\r\n",
-	CLI_StepperIcInitCommand, /* The function to run. */
-	5 /* five parameters are expected. */
-};
 
 /***************************************************************************/
 /* CLI command structure : StepperMoveCommand */
 const CLI_Command_Definition_t CLI_StepperMoveCommandDefinition = {
-	( const int8_t * ) "steppermove", /* The command string to type. */
-	( const int8_t * ) "steppermove:\r\nParameters required to execute a motor_Direction:0,1  , Number of Steps \r\n\r\n",
-	CLI_StepperMoveCommand, /* The function to run. */
+	( const int8_t * ) "stepcontrol", /* The command string to type. */
+	( const int8_t * ) "stepcontrol:\r\nParameters required to execute a motor_Direction:0,1  , Number of Steps \r\n\r\n",
+	CLI_MotorStepControlCommand, /* The function to run. */
 	2 /* two parameters are expected. */
 };
 
 /***************************************************************************/
 /* CLI command structure : StepperRunCommand */
 const CLI_Command_Definition_t CLI_StepperRunCommandDefinition = {
-	( const int8_t * ) "stepperrun", /* The command string to type. */
-	( const int8_t * ) "stepperrun:\r\nParameters required to execute a motor_Direction:0,1  , speed \r\n\r\n",
-	CLI_StepperRunCommand, /* The function to run. */
+	( const int8_t * ) "on", /* The command string to type. */
+	( const int8_t * ) "on:\r\nParameters required to execute a motor_Direction:0,1  , speed \r\n\r\n",
+	CLI_MotorTurnOnCommand, /* The function to run. */
 	2 /* two parameters are expected. */
 };
 
 /***************************************************************************/
 /* CLI command structure : StepperStopCommand */
 const CLI_Command_Definition_t CLI_StepperStopCommandDefinition = {
-	( const int8_t * ) "stepperstop", /* The command string to type. */
-	( const int8_t * ) "stepperstop:\r\nParameters required to execute a stopMode:0,1,2   \r\n\r\n",
-	CLI_StepperStopCommand, /* The function to run. */
+	( const int8_t * ) "off", /* The command string to type. */
+	( const int8_t * ) "off:\r\nParameters required to execute a stopMode:0,1,2   \r\n\r\n",
+	CLI_MotorTurnOffCommand, /* The function to run. */
 	1 /* one parameters are expected. */
 };
 
@@ -515,7 +507,7 @@ void Module_Peripheral_Init(void) {
 	MX_TIM4_Init();
 
 	/* default stepper mode is current mode */
-	StepperIcInit(CURRENT_MODE, ACCELERATION_CURRENT, DECLARATION_CURRENT, MAX_SPEED_CURRENT, OVERCURRENT_CURRENT);
+	StepperIcInit(ACCELERATION_CURRENT, DECLARATION_CURRENT, MAX_SPEED_CURRENT, OVERCURRENT_CURRENT);
 
 	/* Circulating DMA Channels ON All Module */
 	for (int i = 1; i <= NUM_OF_PORTS; i++) {
@@ -552,34 +544,13 @@ Module_Status Module_MessagingTask(uint16_t code, uint8_t port, uint8_t src, uin
 
 	switch (code) {
 
-	case CODE_H17R1_STEPPER_IC_INIT:
-		steppermode = cMessage[port - 1][shift];
-		Accelaration = ((uint32_t) cMessage[port - 1][1 + shift])
-				+ ((uint32_t) cMessage[port - 1][2 + shift] << 8)
-				+ ((uint32_t) cMessage[port - 1][3 + shift] << 16)
-				+ ((uint32_t) cMessage[port - 1][4 + shift] << 24);
-		Declaration = ((uint32_t) cMessage[port - 1][5 + shift])
-				+ ((uint32_t) cMessage[port - 1][6 + shift] << 8)
-				+ ((uint32_t) cMessage[port - 1][7 + shift] << 16)
-				+ ((uint32_t) cMessage[port - 1][8 + shift] << 24);
-		MaxSpeed = ((uint32_t) cMessage[port - 1][9 + shift])
-				+ ((uint32_t) cMessage[port - 1][10 + shift] << 8)
-				+ ((uint32_t) cMessage[port - 1][11 + shift] << 16)
-				+ ((uint32_t) cMessage[port - 1][12 + shift] << 24);
-		Overcurrent = ((uint32_t) cMessage[port - 1][13 + shift])
-				+ ((uint32_t) cMessage[port - 1][14 + shift] << 8)
-				+ ((uint32_t) cMessage[port - 1][15 + shift] << 16)
-				+ ((uint32_t) cMessage[port - 1][16 + shift] << 24);
-		StepperIcInit(steppermode, Accelaration, Declaration, MaxSpeed, Overcurrent);
-		break;
-
 	case CODE_H17R1_STEPPER_MOVE:
 		Direction = cMessage[port - 1][shift];
 		Steps = ((uint32_t) cMessage[port - 1][1 + shift])
 				+ ((uint32_t) cMessage[port - 1][2 + shift] << 8)
 				+ ((uint32_t) cMessage[port - 1][3 + shift] << 16)
 				+ ((uint32_t) cMessage[port - 1][4 + shift] << 24);
-		StepperMove(Direction, Steps);
+		MotorStepControl(Direction, Steps);
 		break;
 
 	case CODE_H17R1_STEPPER_RUN:
@@ -588,12 +559,12 @@ Module_Status Module_MessagingTask(uint16_t code, uint8_t port, uint8_t src, uin
 				+ ((uint32_t) cMessage[port - 1][2 + shift] << 8)
 				+ ((uint32_t) cMessage[port - 1][3 + shift] << 16)
 				+ ((uint32_t) cMessage[port - 1][4 + shift] << 24);
-		StepperRun(Direction, Speed);
+		MotorTurnOn(Direction, Speed);
 		break;
 
 	case CODE_H17R1_STEPPER_STOP:
 		mode = cMessage[port - 1][shift];
-		StepperStop(mode);
+		MotorTurnOff(mode);
 		break;
 
 	default:
@@ -624,7 +595,6 @@ uint8_t GetPort(UART_HandleTypeDef *huart) {
 /***************************************************************************/
 /* Register this module CLI Commands */
 void RegisterModuleCLICommands(void) {
-	FreeRTOS_CLIRegisterCommand(&CLI_StepperIcInitCommandDefinition);
 	FreeRTOS_CLIRegisterCommand(&CLI_StepperMoveCommandDefinition);
 	FreeRTOS_CLIRegisterCommand(&CLI_StepperRunCommandDefinition);
 	FreeRTOS_CLIRegisterCommand(&CLI_StepperStopCommandDefinition);
@@ -895,61 +865,7 @@ union powerstep01_Init_u StepperIcInit_current_mode(float Accelaration_current,
 }
 
 /***************************************************************************/
-union powerstep01_Init_u StepperIcInit_voltage_mode(float Accelaration_voltage,
-		float Declaration_voltage, float MaxSpeed_voltage, float Overcurrent_voltage) {
-
-	union powerstep01_Init_u initDeviceParameters = {
-	/* common parameters */
-	.vm.cp.cmVmSelection = POWERSTEP01_CM_VM_VOLTAGE, // enum powerstep01_CmVm_t
-			Accelaration_voltage, // Acceleration rate in step/s2, range 14.55 to 59590 steps/s^2
-			Declaration_voltage, // Deceleration rate in step/s2, range 14.55 to 59590 steps/s^2
-			MaxSpeed_voltage, // Maximum speed in step/s, range 15.25 to 15610 steps/s
-			0, // Minimum speed in step/s, range 0 to 976.3 steps/s
-			POWERSTEP01_LSPD_OPT_OFF, // Low speed optimization bit, enum powerstep01_LspdOpt_t
-			244.16, // Full step speed in step/s, range 7.63 to 15625 steps/s
-			POWERSTEP01_BOOST_MODE_OFF, // Boost of the amplitude square wave, enum powerstep01_BoostMode_t
-			Overcurrent_voltage, // Overcurrent threshold settings via enum powerstep01_OcdTh_t
-			STEP_MODE_1_128, // Step mode settings via enum motorStepMode_t
-			POWERSTEP01_SYNC_SEL_DISABLED, // Synch. Mode settings via enum powerstep01_SyncSel_t
-
-			(POWERSTEP01_ALARM_EN_OVERCURRENT | POWERSTEP01_ALARM_EN_THERMAL_SHUTDOWN | POWERSTEP01_ALARM_EN_THERMAL_WARNING
-					| POWERSTEP01_ALARM_EN_UVLO | POWERSTEP01_ALARM_EN_STALL_DETECTION
-					| POWERSTEP01_ALARM_EN_SW_TURN_ON | POWERSTEP01_ALARM_EN_WRONG_NPERF_CMD), // Alarm settings via bitmap enum powerstep01_AlarmEn_t
-
-			POWERSTEP01_IGATE_64mA, // Gate sink/source current via enum powerstep01_Igate_t
-			POWERSTEP01_TBOOST_0ns, // Duration of the overboost phase during gate turn-off via enum powerstep01_Tboost_t
-			POWERSTEP01_TCC_500ns, // Controlled current time via enum powerstep01_Tcc_t
-			POWERSTEP01_WD_EN_DISABLE, // External clock watchdog, enum powerstep01_WdEn_t
-			POWERSTEP01_TBLANK_375ns, // Duration of the blanking time via enum powerstep01_TBlank_t
-			POWERSTEP01_TDT_125ns, // Duration of the dead time via enum powerstep01_Tdt_t
-
-			/* voltage mode parameters */
-			16.02, // Hold duty cycle (torque) in %, range 0 to 99.6%
-			16.02, // Run duty cycle (torque) in %, range 0 to 99.6%
-			16.02, // Acceleration duty cycle (torque) in %, range 0 to 99.6%
-			16.02, // Deceleration duty cycle (torque) in %, range 0 to 99.6%
-			61.512, // Intersect speed settings for BEMF compensation in steps/s, range 0 to 3906 steps/s
-			0.03815, // BEMF start slope settings for BEMF compensation in % step/s, range 0 to 0.4% s/step
-			0.06256, // BEMF final acc slope settings for BEMF compensation in % step/s, range 0 to 0.4% s/step
-			0.06256, // BEMF final dec slope settings for BEMF compensation in % step/s, range 0 to 0.4% s/step
-			1, // Thermal compensation param, range 1 to 1.46875
-			531.25, // Stall threshold settings in mV, range 31.25mV to 1000mV
-			POWERSTEP01_CONFIG_INT_16MHZ_OSCOUT_2MHZ, // CLOCK setting , enum powerstep01_ConfigOscMgmt_t
-			POWERSTEP01_CONFIG_SW_HARD_STOP, // External switch hard stop interrupt mode, enum powerstep01_ConfigSwMode_t
-			POWERSTEP01_CONFIG_VS_COMP_DISABLE, // Motor Supply Voltage Compensation enabling , enum powerstep01_ConfigEnVscomp_t
-			POWERSTEP01_CONFIG_OC_SD_DISABLE, // Over current shutwdown enabling, enum powerstep01_ConfigOcSd_t
-			POWERSTEP01_CONFIG_UVLOVAL_LOW, // UVLO Threshold via powerstep01_ConfigUvLoVal_t
-			POWERSTEP01_CONFIG_VCCVAL_15V, // VCC Val, enum powerstep01_ConfigVccVal_t
-			POWERSTEP01_CONFIG_PWM_DIV_1, // PWM Frequency Integer division, enum powerstep01_ConfigFPwmInt_t
-			POWERSTEP01_CONFIG_PWM_MUL_0_75, // PWM Frequency Integer Multiplier, enum powerstep01_ConfigFPwmDec_t
-			};
-	return initDeviceParameters;
-}
-
-/***************************************************************************/
-/***************************** General Functions ***************************/
-/***************************************************************************/
-Module_Status StepperIcInit(DrivingMethod, float Accelaration, float Declaration, float MaxSpeed, float Overcurrent) {
+static Module_Status StepperIcInit(float Accelaration, float Declaration, float MaxSpeed, float Overcurrent) {
 	Module_Status status = H17R1_OK;
 
 	if (CURRENT_MODE != 0 && VOLTAGE_MODE != 1)
@@ -964,23 +880,19 @@ Module_Status StepperIcInit(DrivingMethod, float Accelaration, float Declaration
 	if (MaxSpeed < MOTOR_MIN_SPEED || MaxSpeed > MOTOR_MAX_SPEED)
 		return H17R1_ERR_WRONGPARAMS;
 
-//	/* Default Mode is current mode */
-//	if (CURRENT_MODE == 0)
-//		initDeviceParameters = StepperIcInit_current_mode(Accelaration, Declaration, MaxSpeed, Overcurrent);
-//	 else
-//		initDeviceParameters = StepperIcInit_voltage_mode(Accelaration, Declaration, MaxSpeed, Overcurrent);
-
 	/* Set the Powerstep01 library to use 1 device */
 	Powerstep01_SetNbDevices(1);
 
 	/* device with the union declared in the the H17R1.h file and comment the    */
 	/* subsequent call having the NULL pointer                                  */
-	Powerstep01_Init(NULL/*&initDeviceParameters*/);
+	Powerstep01_Init(NULL);
 
 	/* Attach the function MyFlagInterruptHandler (defined below) to the flag interrupt */
 	Powerstep01_AttachFlagInterrupt(MyFlagInterruptHandler);
+
 	/* Attach the function MyBusyInterruptHandler (defined below) to the busy interrupt */
 	Powerstep01_AttachBusyInterrupt(MyBusyInterruptHandler);
+
 	/* Attach the function Error_Handler (defined below) to the error Handler*/
 	Powerstep01_AttachErrorHandler(MyErrorHandler);
 
@@ -988,8 +900,9 @@ Module_Status StepperIcInit(DrivingMethod, float Accelaration, float Declaration
 }
 
 /***************************************************************************/
+/***************************** General Functions ***************************/
 /* motor will move depending on the number of steps */
-Module_Status StepperMove(motorDir_t direction, uint32_t n_step) {
+Module_Status MotorStepControl(motorDir_t direction, uint32_t n_step) {
 	Module_Status status = H17R1_OK;
 
 	if (direction != 0 && direction != 1)
@@ -1005,7 +918,7 @@ Module_Status StepperMove(motorDir_t direction, uint32_t n_step) {
 /* motor will run with the given speed unti it is stopped using StepperStop function
  * speed in 2^-28 step/tick
  */
-Module_Status StepperRun(motorDir_t direction, uint32_t speed) {
+Module_Status MotorTurnOn(motorDir_t direction, uint32_t speed) {
 	Module_Status status = H17R1_OK;
 
 	if (direction != Backward && direction != Forward)
@@ -1020,7 +933,7 @@ Module_Status StepperRun(motorDir_t direction, uint32_t speed) {
 }
 
 /***************************************************************************/
-Module_Status StepperStop(StoppingMethod mode) {
+Module_Status MotorTurnOff(StoppingMethod mode) {
 	Module_Status status = H17R1_OK;
 
 	if (mode != SOFT_STOP && mode != HARD_STOP && mode != CLOCK)
@@ -1049,58 +962,7 @@ Module_Status StepperStop(StoppingMethod mode) {
 /***************************************************************************/
 /********************************* Commands ********************************/
 /***************************************************************************/
-portBASE_TYPE CLI_StepperIcInitCommand( int8_t *pcWriteBuffer, size_t xWriteBufferLen, const int8_t *pcCommandString ){
-	Module_Status status = H17R1_OK;
-
-	int8_t steppermode;
-	static int8_t *pcParameterString1;
-	static int8_t *pcParameterString2;
-	static int8_t *pcParameterString3;
-	static int8_t *pcParameterString4;
-	static int8_t *pcParameterString5;
-
-	static const int8_t *pcOKMessage=(int8_t* )"stepper is moving:\r\n %d  \n\r";
-	static const int8_t *pcWrongParamsMessage =(int8_t* )"Wrong Params!\n\r";
-	static const int8_t *pcWrongRangeMessage =(int8_t* )"Direction is not true!\n\r";
-
-	float Accelaration ,Declaration,MaxSpeed ,Overcurrent;
-
-	portBASE_TYPE xParameterStringLength1 =0;
-	portBASE_TYPE xParameterStringLength2 =0;
-	portBASE_TYPE xParameterStringLength3 =0;
-	portBASE_TYPE xParameterStringLength4 =0;
-	portBASE_TYPE xParameterStringLength5 =0;
-
-	(void )xWriteBufferLen;
-	configASSERT(pcWriteBuffer);
-
-	pcParameterString1 =(int8_t* )FreeRTOS_CLIGetParameter(pcCommandString, 1, &xParameterStringLength1 );
-	steppermode =(uint8_t )atol((char* )pcParameterString1);
-
-	pcParameterString2 =(int8_t* )FreeRTOS_CLIGetParameter(pcCommandString, 2, &xParameterStringLength2 );
-	Accelaration =(float )atol((char* )pcParameterString2);
-	pcParameterString3 =(int8_t* )FreeRTOS_CLIGetParameter(pcCommandString, 3, &xParameterStringLength3 );
-	Declaration =(float )atol((char* )pcParameterString3);
-
-	pcParameterString4 =(int8_t* )FreeRTOS_CLIGetParameter(pcCommandString, 4, &xParameterStringLength4 );
-	MaxSpeed =(float )atol((char* )pcParameterString4);
-
-	pcParameterString5 =(int8_t* )FreeRTOS_CLIGetParameter(pcCommandString, 5, &xParameterStringLength5 );
-	Overcurrent =(float )atol((char* )pcParameterString5);
-
-	status=StepperIcInit( steppermode, Accelaration, Declaration,  MaxSpeed,Overcurrent );
-
-	if(status == H17R1_OK)
-		sprintf((char* )pcWriteBuffer,(char* )pcOKMessage,steppermode);
-
-	else if(status == H17R1_ERR_WRONGPARAMS)
-		strcpy((char* )pcWriteBuffer,(char* )pcWrongParamsMessage);
-
-	return pdFALSE;
-}
-
-/***************************************************************************/
-portBASE_TYPE CLI_StepperMoveCommand( int8_t *pcWriteBuffer, size_t xWriteBufferLen, const int8_t *pcCommandString ){
+portBASE_TYPE CLI_MotorStepControlCommand( int8_t *pcWriteBuffer, size_t xWriteBufferLen, const int8_t *pcCommandString ){
 	Module_Status status = H17R1_OK;
 
 	uint8_t direction;
@@ -1124,7 +986,7 @@ portBASE_TYPE CLI_StepperMoveCommand( int8_t *pcWriteBuffer, size_t xWriteBuffer
 
 	pcParameterString2 =(int8_t* )FreeRTOS_CLIGetParameter(pcCommandString, 2, &xParameterStringLength2 );
 	steps =(uint32_t )atol((char* )pcParameterString2);
-    status=StepperMove(direction,steps);
+    status=MotorStepControl(direction,steps);
 
 	if(status == H17R1_OK)
 		sprintf((char* )pcWriteBuffer,(char* )pcOKMessage,steps);
@@ -1136,7 +998,7 @@ portBASE_TYPE CLI_StepperMoveCommand( int8_t *pcWriteBuffer, size_t xWriteBuffer
 }
 
 /***************************************************************************/
-portBASE_TYPE CLI_StepperRunCommand( int8_t *pcWriteBuffer, size_t xWriteBufferLen, const int8_t *pcCommandString ){
+portBASE_TYPE CLI_MotorTurnOnCommand( int8_t *pcWriteBuffer, size_t xWriteBufferLen, const int8_t *pcCommandString ){
 	Module_Status status = H17R1_OK;
 
 	uint8_t direction;
@@ -1160,7 +1022,7 @@ portBASE_TYPE CLI_StepperRunCommand( int8_t *pcWriteBuffer, size_t xWriteBufferL
 
 	pcParameterString2 =(int8_t* )FreeRTOS_CLIGetParameter(pcCommandString, 2, &xParameterStringLength2 );
 	speed =(uint32_t )atol((char* )pcParameterString2);
-    status=StepperRun(direction,speed);
+    status=MotorTurnOn(direction,speed);
 
 	if(status == H17R1_OK)
 		sprintf((char* )pcWriteBuffer,(char* )pcOKMessage,speed);
@@ -1172,7 +1034,7 @@ portBASE_TYPE CLI_StepperRunCommand( int8_t *pcWriteBuffer, size_t xWriteBufferL
 }
 
 /***************************************************************************/
-portBASE_TYPE CLI_StepperStopCommand( int8_t *pcWriteBuffer, size_t xWriteBufferLen, const int8_t *pcCommandString ){
+portBASE_TYPE CLI_MotorTurnOffCommand( int8_t *pcWriteBuffer, size_t xWriteBufferLen, const int8_t *pcCommandString ){
 	Module_Status status = H17R1_OK;
 
     uint8_t stopmode;
@@ -1189,7 +1051,7 @@ portBASE_TYPE CLI_StepperStopCommand( int8_t *pcWriteBuffer, size_t xWriteBuffer
 	pcParameterString1 =(int8_t* )FreeRTOS_CLIGetParameter(pcCommandString, 1, &xParameterStringLength1 );
 	stopmode =(uint8_t )atol((char* )pcParameterString1);
 
-	 status=StepperStop(stopmode);
+	 status=MotorTurnOff(stopmode);
 
 	if(status == H17R1_OK)
 		sprintf((char* )pcWriteBuffer,(char* )pcOKMessage,stopmode);

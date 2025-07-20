@@ -25,15 +25,6 @@
 #include "H17R1_inputs.h"
 #include "H17R1_eeprom.h"
 #include "powerstep01.h"
-//#include "motor.h"
-
-/* Motors ******************************************************************/
-//#define MOTOR_23HS8240
-////#define MOTOR_17HS4401
-////#define MOTOR_SY42STH38_1684A
-////#define MOTOR_23HS45_4204S
-////#define MOTOR_KL23H256_21_8B
-////#define MOTOR_34HS59_5008D
 
 
 /* Exported Macros *********************************************************/
@@ -119,28 +110,6 @@
 #define _IND_LED_PORT	    GPIOB
 #define _IND_LED_PIN	    GPIO_PIN_14
 
-/* Module-specific Macro Definitions ***************************************/
-#define NUM_MODULE_PARAMS	    1
-#define TIMEOUT_MAX             ((uint32_t)0x1000)
-
-#define MOTOR_MAX_SPEED         15610   /* step/tick */
-#define MOTOR_MIN_SPEED         15.25   /* step/tick */
-
-#define MOTOR_MAX_ACC_DEC_V_C   59590
-#define MOTOR_MIN_ACC_DEC_V_C   14.55
-
-/* Initialization parameters for current mode */
-#define ACCELERATION_CURRENT    5000
-#define DECLARATION_CURRENT     1000
-#define	MAX_SPEED_CURRENT       15610
-#define	OVERCURRENT_CURRENT     48
-
-/* Initialization parameters for voltage mode */
-#define ACCELERATION_VOLTAGE    582
-#define DECLARATION_VOLTAGE     582
-#define MAX_SPEED_VOLTAGE       488
-#define OVERCURRENT_VOLTAGE     281.25
-
 /* Module-specific Type Definition *****************************************/
 /* Module-status Type Definition */
 typedef enum {
@@ -184,10 +153,9 @@ extern void SystemClock_Config(void);
 /***************************************************************************/
 /***************************** General Functions ***************************/
 /***************************************************************************/
-Module_Status StepperStop(StoppingMethod mode);
-Module_Status StepperRun(motorDir_t direction, uint32_t speed);
-Module_Status StepperMove(motorDir_t direction, uint32_t n_step);
-Module_Status StepperIcInit(DrivingMethod, float Accelaration, float Declaration, float MaxSpeed, float Overcurrent);
+Module_Status MotorTurnOff(StoppingMethod mode);
+Module_Status MotorTurnOn(motorDir_t direction, uint32_t speed);
+Module_Status MotorStepControl(motorDir_t direction, uint32_t n_step);
 
 #endif /* H17R1_H */
 
