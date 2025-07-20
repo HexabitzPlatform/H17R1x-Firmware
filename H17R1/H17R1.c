@@ -814,6 +814,14 @@ void MyErrorHandler(uint16_t error) {
 }
 
 /***************************************************************************/
+/**
+ * @brief stepper ic current mode intialize.
+ * @param Accelaration_current: motor accelaration current.
+ * @param Declaration_current: motor declaration current.
+ * @param MaxSpeed_current: motor max speed current.
+ * @param Overcurrent_current: motor overcurrent.
+ * @retval powerstep01_Init_u struct.
+ */
 union powerstep01_Init_u StepperIcInit_current_mode(float Accelaration_current,
 		float Declaration_current, float MaxSpeed_current, float Overcurrent_current) {
 
@@ -865,6 +873,14 @@ union powerstep01_Init_u StepperIcInit_current_mode(float Accelaration_current,
 }
 
 /***************************************************************************/
+/**
+ * @brief stepper ic intialize.
+ * @param Accelaration: motor accelaration.
+ * @param Declaration: motor declaration.
+ * @param MaxSpeed: motor max speed.
+ * @param Overcurrent: motor overcurrent.
+ * @retval Module_Status.
+ */
 static Module_Status StepperIcInit(float Accelaration, float Declaration, float MaxSpeed, float Overcurrent) {
 	Module_Status status = H17R1_OK;
 
@@ -901,7 +917,12 @@ static Module_Status StepperIcInit(float Accelaration, float Declaration, float 
 
 /***************************************************************************/
 /***************************** General Functions ***************************/
-/* motor will move depending on the number of steps */
+/**
+ * @brief step motor control.
+ * @param direction: motor direction.
+ * @param n_step: step degree.
+ * @retval Module_Status.
+ */
 Module_Status MotorStepControl(motorDir_t direction, uint32_t n_step) {
 	Module_Status status = H17R1_OK;
 
@@ -915,8 +936,11 @@ Module_Status MotorStepControl(motorDir_t direction, uint32_t n_step) {
 }
 
 /***************************************************************************/
-/* motor will run with the given speed unti it is stopped using StepperStop function
- * speed in 2^-28 step/tick
+/**
+ * @brief turn on motor.
+ * @param direction: motor direction.
+ * @param speed: motor speed.
+ * @retval Module_Status.
  */
 Module_Status MotorTurnOn(motorDir_t direction, uint32_t speed) {
 	Module_Status status = H17R1_OK;
@@ -933,6 +957,11 @@ Module_Status MotorTurnOn(motorDir_t direction, uint32_t speed) {
 }
 
 /***************************************************************************/
+/**
+ * @brief turn off motor.
+ * @param mode: stop mode.
+ * @retval Module_Status.
+ */
 Module_Status MotorTurnOff(StoppingMethod mode) {
 	Module_Status status = H17R1_OK;
 
@@ -962,6 +991,13 @@ Module_Status MotorTurnOff(StoppingMethod mode) {
 /***************************************************************************/
 /********************************* Commands ********************************/
 /***************************************************************************/
+/**
+ * @brief CLI command to set the motor step.
+ * @param pcWriteBuffer Buffer to store the command output.
+ * @param xWriteBufferLen Length of the write buffer.
+ * @param pcCommandString Command string with time and torque parameters.
+ * @retval portBASE_TYPE Returns pdFALSE to indicate command completion.
+ */
 portBASE_TYPE CLI_MotorStepControlCommand( int8_t *pcWriteBuffer, size_t xWriteBufferLen, const int8_t *pcCommandString ){
 	Module_Status status = H17R1_OK;
 
@@ -998,6 +1034,13 @@ portBASE_TYPE CLI_MotorStepControlCommand( int8_t *pcWriteBuffer, size_t xWriteB
 }
 
 /***************************************************************************/
+/**
+ * @brief CLI command to turn on stepper motor.
+ * @param pcWriteBuffer Buffer to store the command output.
+ * @param xWriteBufferLen Length of the write buffer.
+ * @param pcCommandString Command string with time and torque parameters.
+ * @retval portBASE_TYPE Returns pdFALSE to indicate command completion.
+ */
 portBASE_TYPE CLI_MotorTurnOnCommand( int8_t *pcWriteBuffer, size_t xWriteBufferLen, const int8_t *pcCommandString ){
 	Module_Status status = H17R1_OK;
 
@@ -1034,6 +1077,13 @@ portBASE_TYPE CLI_MotorTurnOnCommand( int8_t *pcWriteBuffer, size_t xWriteBuffer
 }
 
 /***************************************************************************/
+/**
+ * @brief CLI command to turn off stepper motor.
+ * @param pcWriteBuffer Buffer to store the command output.
+ * @param xWriteBufferLen Length of the write buffer.
+ * @param pcCommandString Command string with time and torque parameters.
+ * @retval portBASE_TYPE Returns pdFALSE to indicate command completion.
+ */
 portBASE_TYPE CLI_MotorTurnOffCommand( int8_t *pcWriteBuffer, size_t xWriteBufferLen, const int8_t *pcCommandString ){
 	Module_Status status = H17R1_OK;
 
